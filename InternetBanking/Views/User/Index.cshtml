@@ -1,0 +1,107 @@
+﻿@using InternetBanking.Core.Application.ViewModels.Users;
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+
+    <section class="vh-100 d-flex align-items-center">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card shadow-lg" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+
+                            <div class="mb-5">
+                                <h1 class="display-5 fw-bold" style="color: #003366; font-family: 'Poppins', sans-serif;">UnityBankRD</h1>
+                                <p class="lead" style="font-family: 'Roboto', sans-serif; color: #6c757d;">Bienvenido a su portal bancario seguro</p>
+                            </div>
+
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                            @if (Model.HasError)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <p>@Model.Error</p>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            <form method="post" asp-controller="User" asp-action="Index">
+                                <div class="input-group mb-4">
+                                    <span class="input-group-text" id="basic-addon1" style="width: 50px; justify-content: center;">
+                                        <i class="fas fa-user" style="font-size: 1.5rem; color: #003366;"></i>
+                                    </span>
+                                    <input asp-for="UserName" class="form-control form-control-lg" placeholder="Nombre de usuario" required />
+                                </div>
+
+                                <div class="input-group mb-4">
+                                    <span class="input-group-text" id="basic-addon1" style="width: 50px; justify-content: center;">
+                                        <i class="fas fa-lock" style="font-size: 1.5rem; color: #003366;"></i>
+                                    </span>
+                                    <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Contraseña" required />
+                                </div>
+
+                                
+
+                                <div class="d-grid gap-2 mb-4">
+                                    <button class="btn btn-primary btn-lg" type="submit" style="background-color: #003366; border: none;">Iniciar sesión</button>
+                                </div>
+
+           
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f7f9fb;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+        }
+
+        .input-group-text {
+            background-color: #e3f2fd;
+            color: #003366;
+            border: none;
+        }
+
+        .form-control:focus {
+            border-color: #003366;
+            box-shadow: 0 0 5px rgba(0, 51, 102, 0.5);
+        }
+
+        .btn-primary {
+            background-color: #003366;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #001f4d;
+        }
+
+        .display-5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+        }
+
+    body {
+        background-image: url('https://s10.s3c.es/imag/_v0/4096x2304/7/e/2/fintech.jpg');
+        background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
+        background-repeat: no-repeat; /* Evita que la imagen se repita */
+        background-position: center; /* Centra la imagen */
+        background-attachment: fixed; /* Fija la imagen al fondo para un efecto de desplazamiento */
+    }
+  
+    </style>
+
