@@ -23,6 +23,7 @@ namespace InternetBanking.Infrastructure.Identity.Seeds
                 defaultUser.FirstName = "John";
                 defaultUser.LastName = "Doe";
                 defaultUser.PhoneNumber = "8095553256";
+                defaultUser.Cedula = "402-2423433-2425";
                 defaultUser.EmailConfirmed = true;
                 defaultUser.PhoneNumberConfirmed = true;
 

@@ -11,7 +11,7 @@ namespace InternetBanking.Core.Application.Interfaces.Services
     {
         Task<AuthenticationResponse> AuthenticateAsync(AuthenticationRequest request);
         
-        Task<RegisterResponse> RegisterBasicAsync(RegisterRequest request, string origin);
+        Task<RegisterResponse> RegisterBasicAsync(RegisterRequest request);
 
         Task<AuthenticationResponse> UpdateUser(AuthenticationResponse vm);
         Task<AuthenticationResponse> GetUserByNameAsync(string userName);

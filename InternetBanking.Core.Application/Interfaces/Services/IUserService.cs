@@ -12,9 +12,11 @@ namespace InternetBanking.Core.Application.Interfaces.Services
     {
      
         Task<AuthenticationResponse> LoginAsync(LoginViewModel vm);
-        Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm, string origin);
-        Task<SaveUserViewModel> ConverToSaveVewModel(AuthenticationResponse vm);
+        Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm);
+        Task<SaveUserViewModel> ConverToSaveViewModel(AuthenticationResponse vm);
         Task<AuthenticationResponse> UpdateAsync(SaveUserViewModel vm);
+
+        Task<AuthenticationResponse> ValidateUser(string UserName);
 
         Task SignOutAsync();
     }

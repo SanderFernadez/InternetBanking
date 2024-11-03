@@ -2,11 +2,7 @@
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace InternetBanking.Core.Application.Services
 {
@@ -35,22 +31,25 @@ namespace InternetBanking.Core.Application.Services
             return userResponse;
         }
 
-        public async Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm, string origin)
+        public async Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm)
         {
             RegisterRequest registerRequest = _mapper.Map<RegisterRequest>(vm);
-            return await _accountService.RegisterBasicAsync(registerRequest, origin);
+            return await _accountService.RegisterBasicAsync(registerRequest);
         }
 
-        public async  Task<SaveUserViewModel> ConverToSaveVewModel(AuthenticationResponse vm)
+        public async  Task<SaveUserViewModel> ConverToSaveViewModel(AuthenticationResponse vm)
         {
-            SaveUserViewModel user = new SaveUserViewModel
+            SaveUserViewModel user = new()
             {
                 Id = vm.Id,
                 UserName = vm.UserName,
                 FirstName = vm.FirstName,
                 LastName = vm.LastName,
+                IsVerified = vm.IsVerified,
                 Email = vm.Email,
                 PhoneNumber = vm.PhoneNumber,
+                Cedula = vm.Cedula,
+                Roles = vm.Roles,
                 
             };
 
@@ -70,6 +69,39 @@ namespace InternetBanking.Core.Application.Services
 
             return updateResponse;
         }
+
+
+
+        public async Task<AuthenticationResponse> ValidateUser(string userName)
+        {
+            // Validar el nombre de usuario antes de continuar
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new ArgumentException("El nombre de usuario no puede ser nulo o vacío.", nameof(userName));
+            }
+
+            // Verificar si el usuario existe
+            var existingUser = await _accountService.GetUserByNameAsync(userName);
+            if (existingUser == null)
+            {
+                throw new KeyNotFoundException($"El usuario con el nombre {userName} no existe.");
+            }
+
+            // Aquí puedes agregar la lógica para actualizar la propiedad deseada.
+            // Por ejemplo, supongamos que solo deseas actualizar el estado del usuario.
+            existingUser.IsVerified = !existingUser.IsVerified; // Cambiar el estado activo/inactivo.
+
+            // Realizar la actualización
+            var updateResponse = await _accountService.UpdateUser(existingUser);
+            if (updateResponse == null)
+            {
+                throw new Exception("No se pudo actualizar el usuario debido a un error interno.");
+            }
+
+            return updateResponse;
+        }
+
+
 
         public async Task SignOutAsync()
         {

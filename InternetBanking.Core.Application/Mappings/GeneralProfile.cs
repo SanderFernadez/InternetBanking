@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.ViewModels.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace InternetBanking.Core.Application.Mappings
 {
@@ -16,7 +12,7 @@ namespace InternetBanking.Core.Application.Mappings
     {
 
 
-            #region
+            #region user
 
             CreateMap<SaveUserViewModel, AuthenticationResponse>()
 
@@ -27,6 +23,16 @@ namespace InternetBanking.Core.Application.Mappings
                 .ForMember(x => x.HasError, opt => opt.Ignore())
                 .ForMember(x => x.Error, opt => opt.Ignore())
                 .ReverseMap();
+
+
+            CreateMap<AuthenticationResponse, RegisterRequest>()
+                .ForMember(x => x.ConfirmPassword, opt => opt.Ignore())
+                .ReverseMap()
+                .ForMember(x => x.IsVerified, opt => opt.Ignore())
+                .ForMember(x => x.HasError, opt => opt.Ignore())
+                .ForMember(x => x.Error, opt => opt.Ignore())
+                .ForMember(x => x.Id, opt => opt.Ignore());
+
 
 
             CreateMap<RegisterRequest, SaveUserViewModel>()
