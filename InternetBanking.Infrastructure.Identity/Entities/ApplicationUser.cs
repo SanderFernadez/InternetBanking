@@ -7,6 +7,7 @@ namespace InternetBanking.Infrastructure.Identity.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Cedula { get; set; }
 
 
     }

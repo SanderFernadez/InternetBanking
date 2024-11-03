@@ -21,6 +21,7 @@ namespace InternetBanking.Infrastructure.Identity.Seeds
                 defaultUser.FirstName = "Admin John";
                 defaultUser.LastName = "Admin Doe";
                 defaultUser.PhoneNumber = "8095553256";
+                defaultUser.Cedula = "402-55686-5626";
                 defaultUser.EmailConfirmed = true;
                 defaultUser.PhoneNumberConfirmed = true;
 

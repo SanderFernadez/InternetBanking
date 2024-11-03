@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using InternetBanking.Core.Application.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -37,6 +38,10 @@ namespace InternetBanking.Core.Application.ViewModels.Users
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "Debe colocar el documento de identidad")]
+        [DataType(DataType.Text)]
+        public string Cedula { get; set; }
+
 
 
         [Required(ErrorMessage = "Debe colocar el numero de telefono")]
@@ -46,8 +51,10 @@ namespace InternetBanking.Core.Application.ViewModels.Users
         [Required(ErrorMessage = "Por favor, selecciona un archivo.")]
         [DataType(DataType.Upload)]
 
-
+        public List<string> Roles { get; set; }
+        public decimal? InitialAmount { get; set; }
         public bool HasError { get; set; }
+        public bool IsVerified { get; set; }
 
         public string? Error { get; set; }
 
