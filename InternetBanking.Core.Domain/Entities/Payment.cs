@@ -1,7 +1,6 @@
 ﻿
 
 using InternetBanking.Core.Application.Enums;
-using System.Transactions;
 
 namespace InternetBanking.Core.Domain.Entities
 {
