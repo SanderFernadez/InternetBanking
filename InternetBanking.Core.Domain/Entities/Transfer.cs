@@ -5,6 +5,9 @@ namespace InternetBanking.Core.Domain.Entities
     public class Transfer
     {
         public int Id { get; set; }
+       // public string UserId { get; set; }
+
+
 
         public int AccountSourceId { get; set; }
         public int DestinationAccountId { get; set; }
