@@ -126,6 +126,9 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Property<int>("DestinationAccount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("TransactionId")
                         .HasColumnType("int");
 
