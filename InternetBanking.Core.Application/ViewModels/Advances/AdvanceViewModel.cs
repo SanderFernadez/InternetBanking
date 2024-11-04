@@ -20,6 +20,8 @@ namespace InternetBanking.Core.Application.ViewModels.Advance
         public DateTime DateAdvance { get; set; }
 
        public Account CreditAccount { get; set; }
-       public Account DestinationAccount { get; set; }
+       public Account DestinationAccount { get; set; }//aja
+
+    
     }
 }
