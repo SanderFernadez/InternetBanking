@@ -20,6 +20,7 @@ namespace InternetBanking.Core.Domain.Entities
         public decimal CurrentBalance { get; set; }
         public string UserId { get; set; }
 
+
         // Navigation properties
         public ICollection<Transaction> Transactions { get; set; }
         public ICollection<Advance> Advances { get; set; }
