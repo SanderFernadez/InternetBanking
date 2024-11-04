@@ -62,7 +62,7 @@ namespace WebApp.InternetBanking.Controllers
                 return View(loginVm);
             }
 
-
+            
         }
 
 
@@ -107,10 +107,8 @@ namespace WebApp.InternetBanking.Controllers
 
 
 
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-           
-
             return View("EditUser", new SaveUserViewModel () );
         }
 

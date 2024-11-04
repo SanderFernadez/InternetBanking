@@ -1,6 +1,6 @@
 ﻿
 
-namespace MiniRedSocial.Core.Application.Interfaces.Repositories
+namespace InternetBanking.Core.Application.Interfaces.Repositories
 {
     public interface IGenericRepository<Entity> where Entity : class
     {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InternetBanking.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PersistenceContext))]
-    [Migration("20241102015029_InitialPersistenceContextMigration")]
-    partial class InitialPersistenceContextMigration
+    [Migration("20241103203259_InitialPersistenceMigration")]
+    partial class InitialPersistenceMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,9 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("DestinationAccount")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("TransactionId")
                         .HasColumnType("int");
