@@ -71,22 +71,26 @@
                                 <li class="nav-item">
                                     <a class="nav-link @GetActiveClass("Payments", "Loan")" asp-controller="Payments" asp-action="Loan">- Préstamo</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @GetActiveClass("Payments", "Beneficiaries")" asp-controller="Payments" asp-action="Beneficiaries">- Beneficiarios</a>
+                                </li>
                             </ul>
                         </div>
                     </li>
 
+
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Home", "Beneficiaries")" asp-area="" asp-controller="Home" asp-action="Beneficiaries">
+                        <a class="nav-link @GetActiveClass("Index", "Beneficiary")" asp-area="" asp-controller="Index" asp-action="Beneficiary">
                             <i class="fas fa-users"></i> Beneficiarios
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Home", "CashAdvance")" asp-area="" asp-controller="Home" asp-action="CashAdvance">
+                        <a class="nav-link @GetActiveClass("Index", "CashAdvance")" asp-area="" asp-controller="Index" asp-action="CashAdvance">
                             <i class="fas fa-hand-holding-usd"></i> Avance de efectivo
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Home", "Transfer")" asp-area="" asp-controller="Home" asp-action="Transfer">
+                        <a class="nav-link @GetActiveClass("Index", "Transfer")" asp-area="" asp-controller="Index" asp-action="Transfer">
                             <i class="fas fa-exchange-alt"></i> Transferencias
                         </a>
                     </li>
