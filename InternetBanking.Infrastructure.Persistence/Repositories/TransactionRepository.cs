@@ -1,7 +1,8 @@
 ﻿
 using InternetBanking.Core.Application.Interfaces.Repositories;
+using InternetBanking.Core.Domain.Entities;
 using InternetBanking.Infrastructure.Persistence.Contexts;
-using System.Transactions;
+
 
 namespace InternetBanking.Infrastructure.Persistence.Repositories
 {

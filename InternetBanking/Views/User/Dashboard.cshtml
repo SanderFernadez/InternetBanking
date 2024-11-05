@@ -1,0 +1,164 @@
+﻿@using InternetBanking.Core.Application.ViewModels.BankAccounts
+@model List<BankAccountViewModel>
+
+@{
+    ViewData["Title"] = "Productos Asignados a Clientes";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Tarjeta de Cantidad de Productos -->
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-header">
+                    Productos Asignados
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Cantidad de Productos</h5>
+                    <p class="card-text">@Model.Count</p> <!-- Muestra la cantidad de productos -->
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Resumen de Usuarios -->
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-header">
+                    Resumen de Usuarios
+                </div>
+                <div class="card-body">
+                    @{
+                        // Inicializa contadores
+                        int activeUsersCount = 0;
+                        int inactiveUsersCount = 0;
+
+                        // Contar usuarios activos e inactivos
+                        foreach (var item in Model)
+                        {
+                            foreach (var user in item.Users)
+                            {
+                                if (user.IsVerified)
+                                {
+                                    activeUsersCount++;
+                                }
+                                else
+                                {
+                                    inactiveUsersCount++;
+                                }
+                            }
+                        }
+                    }
+                    <h5 class="card-title">Cantidad de Usuarios Activos</h5>
+                    <p class="card-text">@activeUsersCount</p> <!-- Muestra la cantidad de usuarios activos -->
+
+                    <h5 class="card-title">Cantidad de Usuarios Inactivos</h5>
+                    <p class="card-text">@inactiveUsersCount</p> <!-- Muestra la cantidad de usuarios inactivos -->
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <!-- Tarjeta de Resumen de pagos -->
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-header">
+                    Resumen de Pagos
+                </div>
+                <div class="card-body">
+                    @{
+                        // Inicializa contadores
+                        int allpayments = 0;
+                        int dailypayments= 0;
+                        
+
+                        // Contar usuarios activos e inactivos
+                        foreach (var item in Model)
+                        {
+                            foreach (var payment in item.Payments)
+                            {
+                                allpayments++;
+
+
+                                if (payment.PaymentDate.Date == DateTime.Now.Date)
+                                            {
+                                    dailypayments++;
+                                    
+                                }
+                              
+                            }
+                        }
+                    }
+                    <h5 class="card-title">Cantidad de pagos en el sistema</h5>
+                    <p class="card-text">@allpayments</p> <!-- Muestra la cantidad de usuarios activos -->
+
+                    <h5 class="card-title">Cantidad de pagos realizados en el dia de hoy</h5>
+                    <p class="card-text">@dailypayments</p> <!-- Muestra la cantidad de usuarios inactivos -->
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tarjeta de Resumen de transacciones -->
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-header">
+                    Resumen de Transacciones
+                </div>
+                <div class="card-body">
+                    @{
+                        // Inicializa contadores
+                        int alltransactions = 0;
+                        int dailtransactions = 0;
+
+
+                        // Contar usuarios activos e inactivos
+                        foreach (var item in Model)
+                        {
+                            foreach (var transaction in item.Transactions)
+                            {
+                                alltransactions++;
+
+
+                                if (transaction.TransactionDate.Date == DateTime.Now.Date)
+                                {
+                                    dailtransactions++;
+
+                                }
+
+                            }
+                        }
+                    }
+                    <h5 class="card-title">Cantidad de Transacciones en el sistema</h5>
+                    <p class="card-text">@alltransactions</p> <!-- Muestra la cantidad de usuarios activos -->
+
+                    <h5 class="card-title">Cantidad de Transacciones realizadas en el dia de hoy</h5>
+                    <p class="card-text">@dailtransactions</p> <!-- Muestra la cantidad de usuarios inactivos -->
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    </div>
+</div>

@@ -1,6 +1,5 @@
 ﻿
-
-using System.Transactions;
+using InternetBanking.Core.Domain.Entities;
 
 namespace InternetBanking.Core.Application.Interfaces.Repositories
 {

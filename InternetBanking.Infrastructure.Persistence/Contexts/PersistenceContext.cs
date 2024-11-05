@@ -1,5 +1,4 @@
 ﻿
-using Azure;
 using InternetBanking.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
