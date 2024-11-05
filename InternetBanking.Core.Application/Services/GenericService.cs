@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
-using MiniRedSocial.Core.Application.Interfaces.Repositories;
+
 
 
 namespace InternetBanking.Core.Application.Services

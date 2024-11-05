@@ -1,11 +1,6 @@
 ﻿using InternetBanking.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
-using MiniRedSocial.Core.Application.Interfaces.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using InternetBanking.Core.Application.Interfaces.Repositories;
 
 namespace InternetBanking.Infrastructure.Persistence.Repositories
 {

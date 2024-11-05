@@ -1,0 +1,87 @@
+﻿@using InternetBanking.Core.Application.ViewModels.Payments
+@model SavePaymentViewModel
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Pago Beneficiario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="paymentForm" method="post" action="@Url.Action("ProcesarPagoBeneficiario", "Payments")">
+                <div class="mb-3">
+                    <label asp-for="TransactionId" class="form-label">Beneficiario</label>
+                    <select asp-for="TransactionId" class="form-select">
+                        <option selected>Seleccione un beneficiario</option>
+                        @foreach (var beneficiario in ViewBag.Beneficiarios)
+                        {
+                            <option value="@beneficiario.Value">@beneficiario.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TransactionId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="AmountPaid" class="form-label">Monto</label>
+                    <input asp-for="AmountPaid" class="form-control" placeholder="Ingrese el monto" type="number" step="0.01" />
+                    <span asp-validation-for="AmountPaid" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TransactionType" class="form-label">Cuenta de Origen</label>
+                    <select asp-for="TransactionType" class="form-select">
+                        <option selected>Seleccione una cuenta</option>
+                        @foreach (var cuenta in ViewBag.CuentasOrigen)
+                        {
+                            <option value="@cuenta.Value">@cuenta.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TransactionType" class="text-danger"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmPayment()">Realizar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmación de Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">¿Está seguro de realizar el pago?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="submitPayment()">Sí, Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmPayment() {
+            const amount = document.getElementById('AmountPaid').value;
+            const beneficiary = document.getElementById('TransactionId');
+            const selectedBeneficiary = beneficiary.options[beneficiary.selectedIndex].text;
+
+            if (amount && selectedBeneficiary) {
+                document.getElementById('confirmMessage').textContent = `¿Está seguro de realizar el pago de $${amount} a ${selectedBeneficiary}?`;
+                var confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                confirmModal.show();
+            } else {
+                alert("Por favor, complete todos los campos antes de continuar.");
+            }
+        }
+
+        function submitPayment() {
+            document.getElementById('paymentForm').submit();
+        }
+    </script>
+}
