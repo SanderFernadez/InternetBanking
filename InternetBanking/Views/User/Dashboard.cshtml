@@ -2,163 +2,196 @@
 @model List<BankAccountViewModel>
 
 @{
-    ViewData["Title"] = "Productos Asignados a Clientes";
+    ViewData["Title"] = "Dashboard";
 }
 
 <div class="container mt-4">
-    <div class="row">
-        <!-- Tarjeta de Cantidad de Productos -->
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-header">
-                    Productos Asignados
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Cantidad de Productos</h5>
-                    <p class="card-text">@Model.Count</p> <!-- Muestra la cantidad de productos -->
-                </div>
-                <div class="card-footer text-muted">
-                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
-                </div>
+    <div class="dashboard">
+        <!-- Tarjeta de Resumen de Transacciones -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-exchange-alt"></i> Resumen de Transacciones
+            </div>
+            <div class="card-body">
+                @{
+                    int alltransactions = 0;
+                    int dailytransactions = 0;
+
+                    foreach (var item in Model)
+                    {
+                        foreach (var transaction in item.Transactions)
+                        {
+                            alltransactions++;
+                            if (transaction.TransactionDate.Date == DateTime.Now.Date)
+                            {
+                                dailytransactions++;
+                            }
+                        }
+                    }
+                }
+                <h2>@alltransactions</h2>
+                <p>Transacciones de Hoy: <span>@dailytransactions</span></p>
+            </div>
+            <div class="card-footer text-muted">
+                Última actualización: @DateTime.Now.ToString("g")
+            </div>
+        </div>
+
+        <!-- Tarjeta de Resumen de Pagos -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-dollar-sign"></i> Resumen de Pagos
+            </div>
+            <div class="card-body">
+                @{
+                    int allpayments = 0;
+                    int dailypayments = 0;
+
+                    foreach (var item in Model)
+                    {
+                        foreach (var payment in item.Payments)
+                        {
+                            allpayments++;
+                            if (payment.PaymentDate.Date == DateTime.Now.Date)
+                            {
+                                dailypayments++;
+                            }
+                        }
+                    }
+                }
+                <h2>@allpayments</h2>
+                <p>Pagos de Hoy: <span>@dailypayments</span></p>
+            </div>
+            <div class="card-footer text-muted">
+                Última actualización: @DateTime.Now.ToString("g")
             </div>
         </div>
 
         <!-- Tarjeta de Resumen de Usuarios -->
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-header">
-                    Resumen de Usuarios
-                </div>
-                <div class="card-body">
-                    @{
-                        // Inicializa contadores
-                        int activeUsersCount = 0;
-                        int inactiveUsersCount = 0;
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-users"></i> Resumen de Usuarios
+            </div>
+            <div class="card-body">
+                @{
+                    int activeUsersCount = 0;
+                    int inactiveUsersCount = 0;
 
-                        // Contar usuarios activos e inactivos
-                        foreach (var item in Model)
+                    foreach (var item in Model)
+                    {
+                        foreach (var user in item.Users)
                         {
-                            foreach (var user in item.Users)
+                            if (user.IsVerified)
                             {
-                                if (user.IsVerified)
-                                {
-                                    activeUsersCount++;
-                                }
-                                else
-                                {
-                                    inactiveUsersCount++;
-                                }
+                                activeUsersCount++;
+                            }
+                            else
+                            {
+                                inactiveUsersCount++;
                             }
                         }
                     }
-                    <h5 class="card-title">Cantidad de Usuarios Activos</h5>
-                    <p class="card-text">@activeUsersCount</p> <!-- Muestra la cantidad de usuarios activos -->
-
-                    <h5 class="card-title">Cantidad de Usuarios Inactivos</h5>
-                    <p class="card-text">@inactiveUsersCount</p> <!-- Muestra la cantidad de usuarios inactivos -->
-                </div>
-                <div class="card-footer text-muted">
-                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
-                </div>
+                }
+                <h2>@activeUsersCount</h2>
+                <p>Usuarios Inactivos: <span>@inactiveUsersCount</span></p>
+            </div>
+            <div class="card-footer text-muted">
+                Última actualización: @DateTime.Now.ToString("g")
             </div>
         </div>
 
-
-
-
-
-
-        <!-- Tarjeta de Resumen de pagos -->
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-header">
-                    Resumen de Pagos
-                </div>
-                <div class="card-body">
-                    @{
-                        // Inicializa contadores
-                        int allpayments = 0;
-                        int dailypayments= 0;
-                        
-
-                        // Contar usuarios activos e inactivos
-                        foreach (var item in Model)
-                        {
-                            foreach (var payment in item.Payments)
-                            {
-                                allpayments++;
-
-
-                                if (payment.PaymentDate.Date == DateTime.Now.Date)
-                                            {
-                                    dailypayments++;
-                                    
-                                }
-                              
-                            }
-                        }
-                    }
-                    <h5 class="card-title">Cantidad de pagos en el sistema</h5>
-                    <p class="card-text">@allpayments</p> <!-- Muestra la cantidad de usuarios activos -->
-
-                    <h5 class="card-title">Cantidad de pagos realizados en el dia de hoy</h5>
-                    <p class="card-text">@dailypayments</p> <!-- Muestra la cantidad de usuarios inactivos -->
-                </div>
-                <div class="card-footer text-muted">
-                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
-                </div>
+        <!-- Tarjeta de Cantidad de Productos -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-box"></i> Productos Asignados
+            </div>
+            <div class="card-body">
+                <h2>@Model.Count</h2>
+                <p>Cantidad de Productos</p>
+            </div>
+            <div class="card-footer text-muted">
+                Última actualización: @DateTime.Now.ToString("g")
             </div>
         </div>
-
-
-
-        <!-- Tarjeta de Resumen de transacciones -->
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-header">
-                    Resumen de Transacciones
-                </div>
-                <div class="card-body">
-                    @{
-                        // Inicializa contadores
-                        int alltransactions = 0;
-                        int dailtransactions = 0;
-
-
-                        // Contar usuarios activos e inactivos
-                        foreach (var item in Model)
-                        {
-                            foreach (var transaction in item.Transactions)
-                            {
-                                alltransactions++;
-
-
-                                if (transaction.TransactionDate.Date == DateTime.Now.Date)
-                                {
-                                    dailtransactions++;
-
-                                }
-
-                            }
-                        }
-                    }
-                    <h5 class="card-title">Cantidad de Transacciones en el sistema</h5>
-                    <p class="card-text">@alltransactions</p> <!-- Muestra la cantidad de usuarios activos -->
-
-                    <h5 class="card-title">Cantidad de Transacciones realizadas en el dia de hoy</h5>
-                    <p class="card-text">@dailtransactions</p> <!-- Muestra la cantidad de usuarios inactivos -->
-                </div>
-                <div class="card-footer text-muted">
-                    Última actualización: @DateTime.Now.ToString("g") <!-- Muestra la fecha actual -->
-                </div>
-            </div>
-        </div>
-
-
-
-
-
-
-
     </div>
 </div>
+
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+}
+
+.container {
+    max-width: 1200px; /* Aumenta el ancho máximo del contenedor */
+    margin: 0px auto;
+    margin-top: 50px !important;
+    padding: 20px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 200px; /* Aumenta la altura mínima de las tarjetas */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: #4a90e2;
+    color: #ffffff;
+    padding: 15px;
+    font-size: 18px; /* Aumenta el tamaño de la fuente */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card-body {
+    padding: 30px 20px; /* Aumenta el espaciado interno */
+}
+
+.card-body h2 {
+    font-size: 40px;
+    color: #4a90e2;
+    margin: 0;
+}
+
+.card-body p {
+    margin-top: 10px;
+    font-size: 16px; /* Aumenta el tamaño de la fuente */
+    color: #555555;
+}
+
+.card-body span {
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.card-footer {
+    background-color: #f9f9f9;
+    font-size: 12px;
+    color: #888888;
+    padding: 10px;
+}
+
+
+</style>

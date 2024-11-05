@@ -174,7 +174,7 @@ namespace WebApp.InternetBanking.Controllers
         //} 
 
 
-        [ServiceFilter(typeof(LoginAuthorize))]
+        //[ServiceFilter(typeof(LoginAuthorize))]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dashboard()
         {
