@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Interfaces.Services;
+using InternetBanking.Core.Application.ViewModels.BankAccounts;
 using InternetBanking.Core.Application.ViewModels.Users;
+using InternetBanking.Core.Domain.Enums;
 
 
 namespace InternetBanking.Core.Application.Services
@@ -10,15 +12,19 @@ namespace InternetBanking.Core.Application.Services
     {
 
         private readonly IAccountService _accountService;
+        private readonly IBankAccountService _bankAccountService;
 
         private readonly IMapper _mapper;
 
 
-        public UserService(IMapper mapper, IAccountService accountService)
+        public UserService(IMapper mapper, IBankAccountService bankAccountService, IAccountService accountService)
 
         {
+            
+
             _accountService = accountService;
             _mapper = mapper;
+            _bankAccountService = bankAccountService;
 
 
         }
@@ -32,10 +38,34 @@ namespace InternetBanking.Core.Application.Services
         }
 
         public async Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm)
+
         {
+            
+
             RegisterRequest registerRequest = _mapper.Map<RegisterRequest>(vm);
-            return await _accountService.RegisterBasicAsync(registerRequest);
+            var register = await _accountService.RegisterBasicAsync(registerRequest);
+
+
+            var user = await _accountService.GetUserByNameAsync(vm.UserName);
+            SaveBankAccountViewModel account = new SaveBankAccountViewModel
+            {
+                AccountType = AccountType.SavingPrincipal,
+                InitialAmount = vm.InitialAmount ?? 0,
+                UserId = user.Id, // Puedes establecer el valor adecuado una vez que el usuario sea registrado
+                CurrentBalance = 0,
+                AccountNumber = _bankAccountService.GenerateAccountNumber()
+            };
+
+            await _bankAccountService.Add(account);
+
+
+
+            return register;
+
+
         }
+
+
 
         public async  Task<SaveUserViewModel> ConverToSaveViewModel(AuthenticationResponse vm)
         {

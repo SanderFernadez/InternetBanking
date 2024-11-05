@@ -37,7 +37,7 @@
                 @if (isAdmin || User.Roles.Contains("SuperAdmin"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index">
+                        <a class="nav-link @GetActiveClass("Home", "Index")" asp-area="" asp-controller="User" asp-action="Dashboard">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
                     </li>

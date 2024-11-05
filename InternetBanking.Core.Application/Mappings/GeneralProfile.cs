@@ -54,6 +54,7 @@ namespace InternetBanking.Core.Application.Mappings
 
             #endregion
 
+
             #region Benificiary
             CreateMap<Beneficiary, SaveBeneficiaryViewModel>();
 
