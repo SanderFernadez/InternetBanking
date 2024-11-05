@@ -78,19 +78,21 @@
                         </div>
                     </li>
 
-
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Index", "Beneficiary")" asp-area="" asp-controller="Index" asp-action="Beneficiary">
+                        <a class="nav-link @GetActiveClass("Beneficiary", "Index")" asp-controller="Beneficiary" asp-action="Index">
                             <i class="fas fa-users"></i> Beneficiarios
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Index", "CashAdvance")" asp-area="" asp-controller="Index" asp-action="CashAdvance">
-                            <i class="fas fa-hand-holding-usd"></i> Avance de efectivo
+                        <a class="nav-link @GetActiveClass("CashAdvance", "Index")" asp-controller="CashAdvance" asp-action="Index">
+                            <i class="fas fa-hand-holding-usd"></i> Avance de Efectivo
                         </a>
                     </li>
+
+
                     <li class="nav-item">
-                        <a class="nav-link @GetActiveClass("Index", "Transfer")" asp-area="" asp-controller="Index" asp-action="Transfer">
+                        <a class="nav-link @GetActiveClass("Transfer", "Index")" asp-controller="Transfer" asp-action="Index">
                             <i class="fas fa-exchange-alt"></i> Transferencias
                         </a>
                     </li>

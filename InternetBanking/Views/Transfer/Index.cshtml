@@ -1,0 +1,87 @@
+﻿@using InternetBanking.Core.Application.ViewModels.Transfers
+@model SaveTransferViewModel
+
+@{
+    ViewData["Title"] = "Transferencia entre Cuentas";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    <form method="post" action="@Url.Action("RealizarTransferencia", "Transfer")" class="shadow p-4 rounded bg-light">
+        <div class="mb-3">
+            <label for="AccountSourceId" class="form-label">Cuenta de Origen</label>
+            <select id="AccountSourceId" name="AccountSourceId" class="form-select" required>
+                <option value="">Seleccione una cuenta</option>
+                @foreach (var account in ViewBag.Accounts)
+                {
+                    <option value="@account.AccountSourceId">@account.AccountSourceId</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="DestinationAccountId" class="form-label">Cuenta de Destino</label>
+            <select id="DestinationAccountId" name="DestinationAccountId" class="form-select" required>
+                <option value="">Seleccione una cuenta</option>
+                @foreach (var account in ViewBag.Accounts)
+                {
+                    <option value="@account.DestinationAccountId">@account.DestinationAccountId</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="Amount" class="form-label">Monto de la Transferencia</label>
+            <input type="number" id="Amount" name="Amount" class="form-control" required step="0.01" placeholder="Ingrese el monto" />
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Realizar Transferencia</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    h2 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .alert {
+        margin-top: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control {
+        border-radius: 0.5rem;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .shadow {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>

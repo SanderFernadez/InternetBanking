@@ -13,6 +13,16 @@
         </button>
     </div>
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
     <div class="list-group">
         @if (Model.Any())
         {
@@ -23,7 +33,7 @@
                         <strong>Nombre:</strong> @beneficiary.FirstName @beneficiary.LastName <br />
                         <strong>Cuenta:</strong> @beneficiary.BeneficiaryAccount
                     </div>
-                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@beneficiary.BeneficiaryAccount')">Eliminar</button>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@beneficiary.Id')">Eliminar</button>
                 </div>
             }
         }
@@ -45,36 +55,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addBeneficiaryForm" method="post" action="@Url.Action("AddBeneficiary", "Beneficiaries")">
+                <form id="addBeneficiaryForm" method="post" action="@Url.Action("AddBeneficiary", "Beneficiary")">
                     <div class="mb-3">
-                        <label for="accountNumber" class="form-label">Número de Cuenta</label>
-                        <input type="text" id="accountNumber" name="AccountNumber" class="form-control" required />
+                        <label for="beneficiaryAccount" class="form-label">Número de Cuenta</label>
+                        <input type="text" id="beneficiaryAccount" name="BeneficiaryAccount" class="form-control" required />
                         <span class="text-danger" id="accountError" style="display: none;">Número de cuenta no existe.</span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">Agregar</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmación de eliminación -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar este beneficiario?</p>
-            </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Sí, Eliminar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">Agregar</button>
             </div>
         </div>
     </div>
@@ -83,9 +74,8 @@
 @section Scripts {
     <script>
         function validateAndSubmit() {
-            // Simulación de validación para verificar si la cuenta existe
-            const accountNumber = document.getElementById("accountNumber").value;
-            const accountExists = accountNumber === "123456789"; // Simulación
+            const accountNumber = document.getElementById("beneficiaryAccount").value;
+            const accountExists = accountNumber === "123456789"; // Simulación, reemplazar con verificación real.
 
             if (!accountExists) {
                 document.getElementById("accountError").style.display = "block";
@@ -95,42 +85,12 @@
             }
         }
 
-        function confirmDelete(accountNumber) {
+        function confirmDelete(id) {
             const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
             document.getElementById('confirmDeleteButton').onclick = function () {
-                window.location.href = `@Url.Action("DeleteBeneficiary", "Beneficiaries")?accountNumber=${accountNumber}`;
+                window.location.href = `@Url.Action("DeleteBeneficiary", "Beneficiary")?id=${id}`;
             };
             confirmDeleteModal.show();
         }
     </script>
 }
-
-<style>
-    h2 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-    }
-
-    .list-group-item {
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: none;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
-
-    .btn-danger {
-        background-color: #dc3545;
-        border: none;
-    }
-
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-</style>
