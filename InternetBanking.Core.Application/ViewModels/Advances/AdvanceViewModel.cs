@@ -19,9 +19,7 @@ namespace InternetBanking.Core.Application.ViewModels.Advance
         public decimal Interest { get; set; }
         public DateTime DateAdvance { get; set; }
 
-       public Account CreditAccount { get; set; }
-       public Account DestinationAccount { get; set; }//aja
-
+      
     
     }
 }

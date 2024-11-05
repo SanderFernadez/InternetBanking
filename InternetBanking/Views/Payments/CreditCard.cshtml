@@ -1,0 +1,46 @@
+﻿@using InternetBanking.Core.Application.ViewModels.Payments
+@model SavePaymentViewModel
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Pago Tarjeta de Crédito</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="@Url.Action("ProcesarPagoTarjetaCredito", "Payments")">
+                <div class="mb-3">
+                    <label asp-for="TransactionId" class="form-label">Tarjeta de Crédito</label>
+                    <select asp-for="TransactionId" class="form-select">
+                        <option selected>Seleccione una tarjeta</option>
+                        @foreach (var tarjeta in ViewBag.TarjetasCredito)
+                        {
+                            <option value="@tarjeta.Value">@tarjeta.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TransactionId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="AmountPaid" class="form-label">Monto</label>
+                    <input asp-for="AmountPaid" class="form-control" placeholder="Ingrese el monto" type="number" step="0.01" />
+                    <span asp-validation-for="AmountPaid" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TransactionType" class="form-label">Cuenta de Origen</label>
+                    <select asp-for="TransactionType" class="form-select">
+                        <option selected>Seleccione una cuenta</option>
+                        @foreach (var cuenta in ViewBag.CuentasOrigen)
+                        {
+                            <option value="@cuenta.Value">@cuenta.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TransactionType" class="text-danger"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Realizar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

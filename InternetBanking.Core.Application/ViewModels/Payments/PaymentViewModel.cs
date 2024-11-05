@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InternetBanking.Core.Application.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,8 @@ namespace InternetBanking.Core.Application.ViewModels.Payments
         public int DestinationAccount { get; set; } 
         public decimal AmountPaid { get; set; }
         public DateTime PaymentDate { get; set; } 
-        public string TransactionType { get; set; } 
+        public TransferType TransactionType { get; set; } 
 
-        public string DestinationAccountName { get; set; } 
+       // public string DestinationAccountName { get; set; } 
     }
 }

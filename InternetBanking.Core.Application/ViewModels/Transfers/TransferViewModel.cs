@@ -10,9 +10,8 @@ namespace InternetBanking.Core.Application.ViewModels.Transfers
     {
         public int Id { get; set; } 
         public int AccountSourceId { get; set; } 
-        public string SourceAccountName { get; set; } // Nombre de la cuenta de origen (opcional, para mostrar en la vista)
+      //  public string SourceAccountName { get; set; } // Nombre de la cuenta de origen (opcional, para mostrar en la vista)
         public int DestinationAccountId { get; set; } 
-        public string DestinationAccountName { get; set; } // Nombre de la cuenta de destino (opcional, para mostrar en la vista)
         public decimal Amount { get; set; } 
         public DateTime TransferDate { get; set; } 
     }

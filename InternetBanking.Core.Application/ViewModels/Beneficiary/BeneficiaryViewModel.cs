@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InternetBanking.Core.Application.ViewModels.Beneficiary.cs
+namespace InternetBanking.Core.Application.ViewModels.Beneficiary
 {
     public class BeneficiaryViewModel
     {
