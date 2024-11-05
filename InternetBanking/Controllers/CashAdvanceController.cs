@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InternetBanking.Core.Application.ViewModels.Advance;
+using InternetBanking.Core.Application.ViewModels.Advances;
 using System.Collections.Generic;
 using System.Linq;
+using InternetBanking.Core.Application.ViewModels.Advances;
 
 public class CashAdvanceController : Controller
 {
@@ -10,14 +11,14 @@ public class CashAdvanceController : Controller
 
     private static List<AdvanceViewModel> creditCards = new List<AdvanceViewModel>
     {
-        new AdvanceViewModel { AccountCreditId = 1, AccountCreditName = "Tarjeta Visa", Amount = 500 },
-        new AdvanceViewModel { AccountCreditId = 2, AccountCreditName = "Tarjeta Mastercard", Amount = 1000 }
+        new AdvanceViewModel { AccountCreditId = 1, Amount = 500 },
+        new AdvanceViewModel { AccountCreditId = 2, Amount = 1000 }
     };
 
     private static List<AdvanceViewModel> savingAccounts = new List<AdvanceViewModel>
     {
-        new AdvanceViewModel { DestinationAccountId = 1, DestinationAccountName = "Cuenta de Ahorro - 123456" },
-        new AdvanceViewModel { DestinationAccountId = 2, DestinationAccountName = "Cuenta de Ahorro - 654321" }
+        new AdvanceViewModel { DestinationAccountId = 1},
+        new AdvanceViewModel { DestinationAccountId = 2}
     };
 
     public IActionResult Index()
