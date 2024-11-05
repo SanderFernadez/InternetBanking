@@ -15,11 +15,11 @@ namespace InternetBanking.Core.Application.Services
     {
         private readonly IBankAccountRepository _bankAccountRepositor;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
+       
         private readonly AuthenticationResponse _userViewModel;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BankAccountService(IBankAccountRepository bankAccountRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor,  IUserService userService) : base(bankAccountRepository, mapper)
+        public BankAccountService(IBankAccountRepository bankAccountRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(bankAccountRepository, mapper)
         {
             _bankAccountRepositor = bankAccountRepository;
             _httpContextAccessor = httpContextAccessor;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InternetBanking.Core.Application.ViewModels.Advance
+namespace InternetBanking.Core.Application.ViewModels.Advances
 {
     public class SaveAdvanceViewModel
     {
