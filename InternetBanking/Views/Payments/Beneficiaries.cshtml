@@ -5,7 +5,6 @@
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">Pago Beneficiario</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <form id="paymentForm" method="post" action="@Url.Action("ProcesarPagoBeneficiario", "Payments")">
@@ -37,7 +36,6 @@
                     <span asp-validation-for="TransactionType" class="text-danger"></span>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" onclick="confirmPayment()">Realizar Pago</button>
                 </div>
             </form>
