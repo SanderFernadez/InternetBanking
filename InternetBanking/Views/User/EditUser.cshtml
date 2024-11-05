@@ -51,13 +51,18 @@
             <label asp-for="Roles" class="form-label">Tipo de usuario</label>
             <select asp-for="Roles" class="form-control" id="roleSelect">
                 <option value="@Roles.Client">Cliente</option>
-                <option value="@Roles.Admin">Administrador</option>
-                <option value="@Roles.SuperAdmin">Super Administrador</option>
+                <option value="@Roles.Admin">Administrador</option>    
             </select>
         </div>
 
         <div class="col-md-6 mb-3">
-            <label asp-for="Password" class="form-label">Password</label>
+            <label asp-for="PhoneNumber" class="form-label">Numero de telefono</label>
+            <input asp-for="PhoneNumber" type="number" class="form-control" placeholder="809-569-8896" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Password" class="form-label"> Password</label>
             <input asp-for="Password" type="password" class="form-control" placeholder="xxxxxxxx" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
