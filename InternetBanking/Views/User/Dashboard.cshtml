@@ -17,15 +17,13 @@
                     int alltransactions = 0;
                     int dailytransactions = 0;
 
-                    foreach (var item in Model)
+                    var firstItem = Model.First();
+                    foreach (var transaction in firstItem.Transactions)
                     {
-                        foreach (var transaction in item.Transactions)
+                        alltransactions++;
+                        if (transaction.TransactionDate.Date == DateTime.Now.Date)
                         {
-                            alltransactions++;
-                            if (transaction.TransactionDate.Date == DateTime.Now.Date)
-                            {
-                                dailytransactions++;
-                            }
+                            dailytransactions++;
                         }
                     }
                 }
@@ -47,15 +45,14 @@
                     int allpayments = 0;
                     int dailypayments = 0;
 
-                    foreach (var item in Model)
+                    var firstItem2 = Model.First();
+                 
+                    foreach (var payment in firstItem2.Payments)
                     {
-                        foreach (var payment in item.Payments)
+                        allpayments++;
+                        if (payment.PaymentDate.Date == DateTime.Now.Date)
                         {
-                            allpayments++;
-                            if (payment.PaymentDate.Date == DateTime.Now.Date)
-                            {
-                                dailypayments++;
-                            }
+                            dailypayments++;
                         }
                     }
                 }
@@ -77,18 +74,16 @@
                     int activeUsersCount = 0;
                     int inactiveUsersCount = 0;
 
-                    foreach (var item in Model)
+                    var firstItem3 = Model.First();
+                    foreach (var user in firstItem3.Users)
                     {
-                        foreach (var user in item.Users)
+                        if (user.IsVerified)
                         {
-                            if (user.IsVerified)
-                            {
-                                activeUsersCount++;
-                            }
-                            else
-                            {
-                                inactiveUsersCount++;
-                            }
+                            activeUsersCount++;
+                        }
+                        else
+                        {
+                            inactiveUsersCount++;
                         }
                     }
                 }
@@ -113,7 +108,7 @@
                 Última actualización: @DateTime.Now.ToString("g")
             </div>
         </div>
-    </div>
+    </div>
 </div>
 
 

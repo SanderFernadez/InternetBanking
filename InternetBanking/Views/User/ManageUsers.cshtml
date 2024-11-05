@@ -5,7 +5,6 @@
     ViewData["Title"] = "Administración de usuarios";
 }
 
-
 <!-- Botones para seleccionar el tipo de usuario -->
 <div class="button-group mb-4">
     <button id="btnAllUsers" class="btn-filter active" onclick="showAll()">
@@ -22,23 +21,25 @@
     </a>
 </div>
 
-<table class="user-table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>Usuario</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Cédula</th>
-            <th>Número de Teléfono</th>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="userTableBody">
-        @foreach (var user in Model)
-        {
+<!-- Contenedor de tabla con desplazamiento interno -->
+<div class="table-container">
+    <table class="user-table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cédula</th>
+                <th>Número de Teléfono</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            @foreach (var user in Model)
+            {
                 <tr class="user-row" data-role="@string.Join(", ", user.Roles)">
                     <td>@user.UserName</td>
                     <td>@user.FirstName</td>
@@ -47,220 +48,216 @@
                     <td>@user.PhoneNumber</td>
                     <td>@user.Email</td>
                     <td>
-                    @if (user.Roles != null && user.Roles.Any())
-                    {
-                        @string.Join(", ", user.Roles)
-                    }
-                    else
-                    {
-                                <span class="text-muted">Sin roles</span>
-                    }
+                        @if (user.Roles != null && user.Roles.Any())
+                        {
+                            @string.Join(", ", user.Roles)
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin roles</span>
+                        }
                     </td>
-                   <td>
-                    @if (user.IsVerified)
-                    {
-                        <span class="status active">Activo</span>
-                    }
-                    else
-                    {
-                        <span class="status inactive">Inactivo</span>
-                    }
-                </td>
+                    <td>
+                        @if (user.IsVerified)
+                        {
+                            <span class="status active">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="status inactive">Inactivo</span>
+                        }
+                    </td>
                     <td class="actions">
                         <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn-action edit" title="Editar">
                             <i class="fas fa-edit"></i> Editar
                         </a>
-                    @if (user.IsVerified)
-                    {
-                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status inactivate" title="Inactivar">
-                                    <i class="fas fa-user-slash"></i> Inactivar
-                                </a>
-                    }
-                    else
-                    {
-                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status activate" title="Activar">
-                                    <i class="fas fa-user-check"></i> Activar
-                                </a>
-                    }
+                        @if (user.IsVerified)
+                        {
+                            <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status inactivate" title="Inactivar">
+                                <i class="fas fa-user-slash"></i> Inactivar
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status activate" title="Activar">
+                                <i class="fas fa-user-check"></i> Activar
+                            </a>
+                        }
                     </td>
                 </tr>
-        }
-    </tbody>
-</table>
+            }
+        </tbody>
+    </table>
+</div>
 
 @section Scripts {
-        <script>
-            function filterTable(role) {
-                var rows = document.querySelectorAll('.user-row');
-                rows.forEach(row => {
-                    var userRoles = row.getAttribute('data-role').split(', ');
-                    if (userRoles.includes(role)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
+    <script>
+        function filterTable(role) {
+            var rows = document.querySelectorAll('.user-row');
+            rows.forEach(row => {
+                var userRoles = row.getAttribute('data-role').split(', ');
+                if (userRoles.includes(role)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
 
-            function showAll() {
-                var rows = document.querySelectorAll('.user-row');
-                rows.forEach(row => {
-                    row.style.display = ''; // Mostrar todas las filas
-                });
-            }
-        </script>
+        function showAll() {
+            var rows = document.querySelectorAll('.user-row');
+            rows.forEach(row => {
+                row.style.display = ''; // Mostrar todas las filas
+            });
+        }
+    </script>
 }
-
-
 
 <style>
-   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f3f6fb;
-    color: #333;
-}
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f6fb;
+        color: #333;
+    }
 
-h2 {
-    font-size: 26px;
-    font-weight: 600;
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 30px;
-}
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 50px;
+        margin-bottom: 25px;
+    }
 
-.button-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 50px;
-    margin-bottom: 25px;
-}
+    .btn-filter, .btn-add-user {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-.btn-filter, .btn-add-user {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
+    .btn-filter {
+        background-color: #ecf0f3;
+        color: #333;
+        border: 1px solid #dcdfe3;
+    }
 
-.btn-filter {
-    background-color: #ecf0f3;
-    color: #333;
-    border: 1px solid #dcdfe3;
-}
+        .btn-filter.active {
+            background-color: #3498db;
+            color: #fff;
+            border: 1px solid #3498db;
+            box-shadow: 0px 4px 15px rgba(52, 152, 219, 0.3);
+        }
 
-.btn-filter.active {
-    background-color: #3498db;
-    color: #fff;
-    border: 1px solid #3498db;
-    box-shadow: 0px 4px 15px rgba(52, 152, 219, 0.3);
-}
+        .btn-filter:hover {
+            background-color: #3498db;
+            color: #fff;
+        }
 
-.btn-filter:hover {
-    background-color: #3498db;
-    color: #fff;
-}
+    .btn-add-user {
+        background-color: #27ae60;
+        color: #fff;
+        border: 1px solid #27ae60;
+    }
 
-.btn-add-user {
-    background-color: #27ae60;
-    color: #fff;
-    border: 1px solid #27ae60;
-}
+        .btn-add-user:hover {
+            background-color: #2ecc71;
+            box-shadow: 0px 4px 15px rgba(39, 174, 96, 0.3);
+        }
 
-.btn-add-user:hover {
-    background-color: #2ecc71;
-    box-shadow: 0px 4px 15px rgba(39, 174, 96, 0.3);
-}
+    /* Contenedor de tabla con desplazamiento interno */
+    .table-container {
+        width: 98%;
+        max-height: 400px; /* Ajusta la altura máxima según sea necesario */
+        overflow-y: auto;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        margin-top: 50px;
+    }
 
-.user-table {
-    width: 98%;
-    border-collapse: collapse;
-    background-color: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-    margin-top: 50px;
-}
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-.user-table thead {
-    background-color: #2c3e50;
-    color: #fff;
-}
+        .user-table thead {
+            background-color: #2c3e50;
+            color: #fff;
+        }
 
-.user-table th, .user-table td {
-    padding: 15px;
-    text-align: left;
-}
+        .user-table th, .user-table td {
+            padding: 15px;
+            text-align: left;
+        }
 
-.user-table tr:nth-child(even) {
-    background-color: #f8f9fb;
-}
+        .user-table tr:nth-child(even) {
+            background-color: #f8f9fb;
+        }
 
-.user-table th {
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
+        .user-table th {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
 
-.user-table td {
-    font-size: 15px;
-    color: #2c3e50;
-}
+        .user-table td {
+            font-size: 15px;
+            color: #2c3e50;
+        }
 
-.status {
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: bold;
-    display: inline-block;
-}
+    .status {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: bold;
+        display: inline-block;
+    }
 
-.status.active {
-    background-color: #27ae60;
-    color: #fff;
-}
+        .status.active {
+            background-color: #27ae60;
+            color: #fff;
+        }
 
-.status.inactive {
-    background-color: #e74c3c;
-    color: #fff;
-}
+        .status.inactive {
+            background-color: #e74c3c;
+            color: #fff;
+        }
 
-/* Botones de acción */
-.actions {
-    display: flex;
-    gap: 8px;
-}
+    /* Botones de acción */
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
 
-.btn-action {
-    padding: 6px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
+    .btn-action {
+        padding: 6px 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
 
-.btn-action.edit {
-    background-color: #3498db;
-    color: #fff;
-}
+        .btn-action.edit {
+            background-color: #3498db;
+            color: #fff;
+        }
 
-.btn-action.toggle-status.inactivate {
-    background-color: #e74c3c;
-    color: #fff;
-}
+        .btn-action.toggle-status.inactivate {
+            background-color: #e74c3c;
+            color: #fff;
+        }
 
-.btn-action.toggle-status.activate {
-    background-color: #27ae60;
-    color: #fff;
-}
+        .btn-action.toggle-status.activate {
+            background-color: #27ae60;
+            color: #fff;
+        }
 
-.btn-action:hover {
-    opacity: 0.9;
-}
-
+        .btn-action:hover {
+            opacity: 0.9;
+        }
 </style>
