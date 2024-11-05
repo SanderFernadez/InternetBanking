@@ -25,7 +25,7 @@
 
         <div class="col-md-6 mb-3">
             <label asp-for="LastName" class="form-label">Apellido</label>
-            <input asp-for="LastName" class="form-control" placeholder="Enter your name.." />
+            <input asp-for="LastName" class="form-control" placeholder="Enter your last name.." />
             <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
 
@@ -48,23 +48,29 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <label asp-for="Roles" class="form-label">Tipo de usuario</label>
-            <select asp-for="Roles" class="form-control" id="roleSelect">
+            <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
+            <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12 mb-3">
+            <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario">
+                <option selected disabled>Seleccione el tipo de usuario</option>
                 <option value="@Roles.Client">Cliente</option>
                 <option value="@Roles.Admin">Administrador</option>
-                <option value="@Roles.SuperAdmin">Super Administrador</option>
             </select>
+            <span asp-validation-for="Roles" class="text-danger"></span>
         </div>
 
         <div class="col-md-6 mb-3">
             <label asp-for="Password" class="form-label">Password</label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="xxxxxxxx" />
+            <input asp-for="Password" type="password" class="form-control" placeholder="********" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
 
         <div class="col-md-6 mb-3">
             <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="xxxxxxxx" />
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="********" />
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
 
@@ -118,7 +124,7 @@
 
     form {
         max-width: 700px;
-        margin: 0 auto;
+        margin: 20px auto;
         padding: 30px;
         background-color: #ffffff;
         border-radius: 15px;
@@ -144,6 +150,7 @@
         .form-control:focus, .form-select:focus {
             border-color: #3498db;
             outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
         }
 
     .row .col-md-6 {
@@ -152,7 +159,7 @@
     }
 
     .mb-3 {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
 
     .text-danger {
@@ -161,7 +168,7 @@
         margin-top: 5px;
     }
 
-    button[type="submit"], .btn-secondary {
+    .btn-primary, .btn-secondary {
         padding: 10px 20px;
         font-size: 16px;
         font-weight: bold;
@@ -171,12 +178,12 @@
         transition: background-color 0.3s ease;
     }
 
-    button[type="submit"] {
+    .btn-primary {
         background-color: #3498db;
         color: #fff;
     }
 
-        button[type="submit"]:hover {
+        .btn-primary:hover {
             background-color: #2980b9;
         }
 
@@ -188,8 +195,4 @@
         .btn-secondary:hover {
             background-color: #95a5a6;
         }
-
-    #initialAmountField {
-        display: none; /* Hidden by default, shown via JavaScript */
-    }
 </style>
