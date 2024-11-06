@@ -6,5 +6,7 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 {
     public interface IBeneficiaryService: IGenericService<SaveBeneficiaryViewModel, BeneficiaryViewModel, Beneficiary>
     {
+        Task<List<BeneficiaryViewModel>> LoadBeneficiary();
+        Task<BeneficiaryViewModel> AddBeneficiaryAccount(int beneficiaryAccount);
     }
 }

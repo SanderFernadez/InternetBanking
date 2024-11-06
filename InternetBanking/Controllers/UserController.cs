@@ -1,6 +1,5 @@
 ﻿using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.ViewModels.Users;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.InternetBanking.Middlewares;
 using InternetBanking.Core.Application.Helpers;

@@ -11,6 +11,9 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 
         Task<List<BankAccountViewModel>> GetDatesOfSystem();
 
-       
+        
+
+
+
     }
 }

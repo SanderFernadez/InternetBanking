@@ -56,7 +56,8 @@ namespace InternetBanking.Core.Application.Mappings
 
 
             #region Benificiary
-            CreateMap<Beneficiary, SaveBeneficiaryViewModel>();
+            CreateMap<Beneficiary, SaveBeneficiaryViewModel>()
+                .ReverseMap();
 
             CreateMap<Beneficiary, BeneficiaryViewModel>();
 
