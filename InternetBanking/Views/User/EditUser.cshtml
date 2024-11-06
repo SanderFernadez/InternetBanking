@@ -1,4 +1,4 @@
-﻿@using InternetBanking.Core.Application.ViewModels.Users
+﻿@using InternetBanking.Core.Application.ViewModels.Users   
 @using InternetBanking.Core.Application.Enums
 @model SaveUserViewModel
 
@@ -7,85 +7,85 @@
     ViewData["Title"] = isEditing ? "Editar Usuario" : "Crear Usuario";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="main-content">
+    <div class="form-container shadow p-4 rounded bg-white">
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+        <form method="post" asp-controller="User" asp-action="@(isEditing ? "EditUser" : "CreateUser")">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="IsVerified" />
 
-<form method="post"
-      asp-controller="User"
-      asp-action="@(isEditing ? "EditUser" : "CreateUser")">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label">Nombre</label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter your name.." />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
 
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="IsVerified" />
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label">Apellido</label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter your surname.." />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="FirstName" class="form-label">Nombre</label>
-            <input asp-for="FirstName" class="form-control" placeholder="Enter your name.." />
-            <span asp-validation-for="FirstName" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Cedula" class="form-label">Cédula</label>
+                    <input asp-for="Cedula" class="form-control" placeholder="Enter your Cédula.." />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="LastName" class="form-label">Apellido</label>
-            <input asp-for="LastName" class="form-control" placeholder="Enter your last name.." />
-            <span asp-validation-for="LastName" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label">Correo Electrónico</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="infoxy@gmail.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="Cedula" class="form-label">Cédula</label>
-            <input asp-for="Cedula" class="form-control" placeholder="Enter your Cédula.." />
-            <span asp-validation-for="Cedula" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="UserName" class="form-label">Usuario</label>
+                    <input asp-for="UserName" class="form-control" placeholder="username..." />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="Email" class="form-label">Correo Electrónico</label>
-            <input asp-for="Email" type="email" class="form-control" placeholder="infoxy@gmail.com" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
+                    <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="UserName" class="form-label">Usuario</label>
-            <input asp-for="UserName" class="form-control" placeholder="username..." />
-            <span asp-validation-for="UserName" class="text-danger"></span>
-        </div>
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Roles" class="form-label">Tipo de Usuario</label>
+                    <select asp-for="Roles" class="form-control form-select" id="roleSelect">
+                        <option value="@Roles.Client">Cliente</option>
+                        <option value="@Roles.Admin">Administrador</option>
+                    </select>
+                    <span asp-validation-for="Roles" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
-            <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-12 mb-3">
-            <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario">
-                <option selected disabled>Seleccione el tipo de usuario</option>
-                <option value="@Roles.Client">Cliente</option>
-                <option value="@Roles.Admin">Administrador</option>
-            </select>
-            <span asp-validation-for="Roles" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="********" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="Password" class="form-label">Password</label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="********" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
+                <div class="col-md-6 mb-3" id="initialAmountField" style="display: none;">
+                    <label asp-for="InitialAmount" class="form-label">Monto Inicial</label>
+                    <input asp-for="InitialAmount" class="form-control" placeholder="0" />
+                    <span asp-validation-for="InitialAmount" class="text-danger"></span>
+                </div>
+            </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="********" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6 mb-3" id="initialAmountField" style="display: none;">
-            <label asp-for="InitialAmount" class="form-label">Monto Inicial</label>
-            <input asp-for="InitialAmount" class="form-control" placeholder="0" />
-            <span asp-validation-for="InitialAmount" class="text-danger"></span>
-        </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary mx-2">@ViewData["Title"]</button>
+                <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary mx-2">Cancelar</a>
+            </div>
+        </form>
     </div>
-
-    <div class="d-flex justify-content-center">
-        <button type="submit" class="btn btn-primary mx-2">@ViewData["Title"]</button>
-        <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary mx-2">Cancelar</a>
-    </div>
-</form>
+</div>
 
 @section Scripts {
     <script>
@@ -108,11 +108,26 @@
 }
 
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Estilo para el contenedor del formulario sin mover el layout */
+    .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Cambia min-height por height para mantener el contenedor fijo */
         background-color: #f4f6fb;
-        color: #333;
+        overflow: hidden; /* Evita que haya desplazamiento */
     }
+
+    .form-container {
+        width: 90%;
+        max-width: 700px;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin: auto 0; /* Centrado vertical */
+    }
+
 
     h2 {
         font-size: 28px;
@@ -120,15 +135,6 @@
         color: #2c3e50;
         text-align: center;
         margin-bottom: 30px;
-    }
-
-    form {
-        max-width: 700px;
-        margin: 20px auto;
-        padding: 30px;
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
     .form-label {
@@ -145,21 +151,17 @@
         border: 1px solid #dcdfe3;
         border-radius: 8px;
         transition: border-color 0.3s ease;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%234498db" height="20" width="20" xmlns="http://www.w3.org/2000/svg"><polygon points="0,0 20,0 10,10"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 12px;
     }
 
-        .form-control:focus, .form-select:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
-        }
-
-    .row .col-md-6 {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .mb-3 {
-        margin-bottom: 15px;
+    .form-control:focus, .form-select:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
     }
 
     .text-danger {
@@ -183,16 +185,21 @@
         color: #fff;
     }
 
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
 
     .btn-secondary {
         background-color: #bdc3c7;
         color: #fff;
     }
 
-        .btn-secondary:hover {
-            background-color: #95a5a6;
-        }
+    .btn-secondary:hover {
+        background-color: #95a5a6;
+    }
+
+    .row .col-md-6 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 </style>
