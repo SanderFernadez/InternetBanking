@@ -13,15 +13,28 @@
         </button>
     </div>
 
-    @if (TempData["Error"] != null)
+    @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">@TempData["Error"]</div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close" style="background: none; border: none; color: inherit; font-size: 1.5rem; position: absolute; top: 10px; right: 10px;">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     }
 
-    @if (TempData["Success"] != null)
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close" style="background: none; border: none; color: inherit; font-size: 1.5rem; position: absolute; top: 10px; right: 10px;">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     }
+
+
+
 
     <div class="list-group">
         @if (Model.Any())
@@ -33,7 +46,13 @@
                         <strong>Nombre:</strong> @beneficiary.FirstName @beneficiary.LastName <br />
                         <strong>Cuenta:</strong> @beneficiary.BeneficiaryAccount
                     </div>
-                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@beneficiary.Id')">Eliminar</button>
+                    <form method="post" asp-action="DeletePost" asp-controller="Beneficiary" style="display:inline;">
+                        <input type="hidden" name="Id" value="@beneficiary.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('¿Está seguro de que desea eliminar este beneficiario?')">
+                            Eliminar
+                        </button>
+                    </form>
                 </div>
             }
         }
@@ -55,42 +74,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addBeneficiaryForm" method="post" action="@Url.Action("AddBeneficiary", "Beneficiary")">
+                <form method="post" asp-action="AddBeneficiary" asp-controller="Beneficiary">
                     <div class="mb-3">
                         <label for="beneficiaryAccount" class="form-label">Número de Cuenta</label>
                         <input type="text" id="beneficiaryAccount" name="BeneficiaryAccount" class="form-control" required />
-                        <span class="text-danger" id="accountError" style="display: none;">Número de cuenta no existe.</span>
+                        <span class="text-danger">
+                            @Html.ValidationMessage("BeneficiaryAccount", "", new { @class = "text-danger" })
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Agregar</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">Agregar</button>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        function validateAndSubmit() {
-            const accountNumber = document.getElementById("beneficiaryAccount").value;
-            const accountExists = accountNumber === "123456789"; // Simulación, reemplazar con verificación real.
-
-            if (!accountExists) {
-                document.getElementById("accountError").style.display = "block";
-            } else {
-                document.getElementById("accountError").style.display = "none";
-                document.getElementById("addBeneficiaryForm").submit();
-            }
-        }
-
-        function confirmDelete(id) {
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            document.getElementById('confirmDeleteButton').onclick = function () {
-                window.location.href = `@Url.Action("DeleteBeneficiary", "Beneficiary")?id=${id}`;
-            };
-            confirmDeleteModal.show();
-        }
-    </script>
-}
