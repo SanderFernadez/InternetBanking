@@ -1,5 +1,15 @@
 ﻿@using InternetBanking.Core.Application.Dtos.Account
+@using InternetBanking.Core.Application.Helpers
 @model List<AuthenticationResponse>
+
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var User = httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+
+}
+
+
+
 
 @{
     ViewData["Title"] = "Administración de usuarios";
@@ -68,21 +78,49 @@
                         }
                     </td>
                     <td class="actions">
-                        <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn-action edit" title="Editar">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        @if (user.IsVerified)
+
+                        @if (User.Id == user.Id)
                         {
-                            <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status inactivate" title="Inactivar">
-                                <i class="fas fa-user-slash"></i> Inactivar
+                            <!-- Deshabilitar el botón de edición para el usuario actual -->
+                            <a class="btn-action toggle-status  edit text-muted disabled" title="Editar">
+                                <i class="fas fa-edit"></i> Editar
                             </a>
+
+                            <!-- Deshabilitar el botón de activación/desactivación para el usuario actual -->
+                            @if (user.IsVerified)
+                            {
+                                <a class="btn-action toggle-status text-muted disabled" title="Inactivar">
+                                    <i class="fas fa-user-slash"></i> Inactivar
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn-action toggle-status text-muted disabled" title="Activar">
+                                    <i class="fas fa-user-check"></i> Activar
+                                </a>
+                            }
                         }
                         else
                         {
-                            <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status activate" title="Activar">
-                                <i class="fas fa-user-check"></i> Activar
+                            <!-- Mostrar los botones de editar y activar/desactivar para otros usuarios -->
+                            <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn-action edit" title="Editar">
+                                <i class="fas fa-edit"></i> Editar
                             </a>
+
+                            @if (user.IsVerified)
+                            {
+                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status inactivate" title="Inactivar">
+                                    <i class="fas fa-user-slash"></i> Inactivar
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status activate" title="Activar">
+                                    <i class="fas fa-user-check"></i> Activar
+                                </a>
+                            }
                         }
+
                     </td>
                 </tr>
             }

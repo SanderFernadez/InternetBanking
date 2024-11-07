@@ -54,12 +54,30 @@
         </div>
 
         <div class="col-md-12 mb-3">
-            <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario">
-                <option selected disabled>Seleccione el tipo de usuario</option>
-                <option value="@Roles.Client">Cliente</option>
-                <option value="@Roles.Admin">Administrador</option>
-            </select>
-            <span asp-validation-for="Roles" class="text-danger"></span>
+            @if (isEditing)
+            {
+                @for (int i = 0; i < Model.Roles.Count; i++)
+                {
+                    <input type="hidden" name="Roles[@i]" value="@Model.Roles[i]" />
+                }
+
+                <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario" disabled>
+                    <option >Seleccione el tipo de usuario</option>
+                    <option value="@Roles.Client">Cliente</option>
+                    <option value="@Roles.Admin">Administrador</option>
+                </select>
+            }
+            else
+            {
+                <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario">
+                    <option disabled>Seleccione un  tipo de usuario</option>
+                    <option value="@Roles.Client">Cliente</option>
+                    <option value="@Roles.Admin">Administrador</option>
+                    
+                </select>
+                <span asp-validation-for="Roles" class="text-danger"></span>
+            }
+           
         </div>
 
         <div class="col-md-6 mb-3">
@@ -84,6 +102,18 @@
     <div class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary mx-2">@ViewData["Title"]</button>
         <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary mx-2">Cancelar</a>
+
+        @if (isEditing)
+        {
+
+            @if (Model.Roles.Contains(Roles.Client.ToString()))
+            {
+                <a asp-controller="BankAccount" asp-action="EditProduct" asp-route-UserId="@Model.Id" class="btn btn-warning mx-2">Editar Producto</a>
+
+
+            }
+        }
+
     </div>
 </form>
 

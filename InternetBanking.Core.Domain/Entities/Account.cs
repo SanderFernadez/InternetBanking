@@ -1,11 +1,5 @@
-﻿using InternetBanking.Core.Application.Enums;
-using InternetBanking.Core.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+﻿using InternetBanking.Core.Domain.Enums;
+
 
 namespace InternetBanking.Core.Domain.Entities
 {
@@ -19,6 +13,9 @@ namespace InternetBanking.Core.Domain.Entities
         public decimal InitialAmount { get; set; }
         public decimal CurrentBalance { get; set; }
         public string UserId { get; set; }
+
+        public decimal? CreditLimit { get; set; }
+        public decimal? LoanAmount { get; set; }
 
 
         // Navigation properties

@@ -1,15 +1,10 @@
-﻿using Azure;
-using InternetBanking.Core.Application.Dtos.Account;
+﻿using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Enums;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace InternetBanking.Infrastructure.Identity.Services
 {
@@ -251,17 +246,22 @@ namespace InternetBanking.Infrastructure.Identity.Services
 
             if (vm.Roles != null)
             {
-                await _userManager.AddToRolesAsync(user, vm.Roles);
+                foreach (var role in vm.Roles)
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+
+                }
             }
 
             // Actualizar el modelo de respuesta con los datos actualizados
+            var roll = (await _userManager.GetRolesAsync(user)).ToList();
             vm.UserName = user.UserName;
             vm.FirstName = user.FirstName;
             vm.LastName = user.LastName;
             vm.Email = user.Email;
             vm.Cedula = user.Cedula;
             vm.PhoneNumber = user.PhoneNumber;
-            vm.Roles = (await _userManager.GetRolesAsync(user)).ToList();
+            vm.Roles = roll;
 
             return vm;
         }
