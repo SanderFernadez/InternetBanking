@@ -37,10 +37,16 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountType")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("CreditLimit")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("CurrentBalance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("InitialAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("LoanAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserId")

@@ -120,15 +120,15 @@ namespace WebApp.InternetBanking.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EditUser(SaveUserViewModel vm)
         {
-            //ModelState.Remove("Roles");
             ModelState.Remove("ConfirmPassword");
+            
             if (!ModelState.IsValid)
             {
 
                 return View("EditUser", vm);
             }
 
-         //  var userexist = await _accountService.GetUserByNameAsync(vm.UserName);
+         
            var updateResponse = await _userService.UpdateAsync(vm);
 
             return RedirectToAction("LoadUsers");

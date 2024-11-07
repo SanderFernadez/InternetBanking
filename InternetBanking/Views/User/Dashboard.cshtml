@@ -77,12 +77,14 @@
                     var firstItem3 = Model.First();
                     foreach (var user in firstItem3.Users)
                     {
+
                         if (user.IsVerified)
                         {
                             activeUsersCount++;
                         }
                         else
                         {
+                           
                             inactiveUsersCount++;
                         }
                     }

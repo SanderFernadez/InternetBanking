@@ -1,5 +1,6 @@
 ﻿using InternetBanking.Core.Application.ViewModels.BankAccounts;
 using InternetBanking.Core.Domain.Entities;
+using InternetBanking.Core.Domain.Enums;
 
 namespace InternetBanking.Core.Application.Interfaces.Services
 {
@@ -11,9 +12,13 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 
         Task<List<BankAccountViewModel>> GetDatesOfSystem();
 
-        
+
+        Task<List<BankAccountViewModel>> GetClientProducts(string UserId);
+
+        Task CreateProduct(AccountType accountType, string userId, decimal creditLimit, decimal loanAmount);
 
 
 
-    }
+
+        }
 }
