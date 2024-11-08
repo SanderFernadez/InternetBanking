@@ -1,6 +1,8 @@
 ﻿
+using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Domain.Enums;
+using InternetBanking.Core.Application.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.InternetBanking.Controllers
@@ -8,17 +10,24 @@ namespace WebApp.InternetBanking.Controllers
     public class BankAccountController : Controller
     {
         private readonly IBankAccountService _bankAccountService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AuthenticationResponse _userViewModel;
 
-        public BankAccountController(IBankAccountService bankAccountService)
+        public BankAccountController(IBankAccountService bankAccountService, IHttpContextAccessor httpContextAccessor)
         {
             _bankAccountService = bankAccountService;
+            _httpContextAccessor = httpContextAccessor;
+            _userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var products = await _bankAccountService.GetClientProducts(_userViewModel.Id);
+            ViewData["UserId"] = _userViewModel.Id; // Almacena UserId en ViewData
+            return View(products);
         }
-        
+
 
         public async Task<IActionResult> EditProduct(string UserId)
         {

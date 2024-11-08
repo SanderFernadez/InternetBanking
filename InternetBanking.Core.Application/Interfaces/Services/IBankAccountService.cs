@@ -17,6 +17,8 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 
         Task CreateProduct(AccountType accountType, string userId, decimal creditLimit, decimal loanAmount);
 
+        Task<List<BankAccountViewModel>> GetAccounts();
+
 
 
 

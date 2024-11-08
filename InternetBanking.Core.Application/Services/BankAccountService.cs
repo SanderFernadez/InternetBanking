@@ -15,7 +15,7 @@ namespace InternetBanking.Core.Application.Services
     {
         private readonly IBankAccountRepository _bankAccountRepositor;
         private readonly IAccountService _accountService;
-        private readonly IPaymentService _paymentService;
+        //private readonly IPaymentService _paymentService;
         private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
        
@@ -23,12 +23,12 @@ namespace InternetBanking.Core.Application.Services
         private static readonly Random _random = new Random();
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BankAccountService(IBankAccountRepository bankAccountRepository, IPaymentService paymentService, IAccountService accountService , IMapper mapper, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService) : base(bankAccountRepository, mapper)
+        public BankAccountService(IBankAccountRepository bankAccountRepository, /*IPaymentService paymentService, */ IAccountService accountService , IMapper mapper, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService) : base(bankAccountRepository, mapper)
         {
             _bankAccountRepositor = bankAccountRepository;
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
-            _paymentService = paymentService;
+           // _paymentService = paymentService;
             _userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
             _transactionService = transactionService;
         }
@@ -61,17 +61,31 @@ namespace InternetBanking.Core.Application.Services
             return totalProducts;
         }
 
+
+        public async Task<List<BankAccountViewModel>> GetAccounts()
+        {
+            var accounts = await GetAllViewModel();
+            var accountsuser = accounts
+                 .Where(p => p.UserId == _userViewModel.Id).ToList();
+
+            return  accountsuser;
+        }
+
+
+
+
+
         public async Task<List<BankAccountViewModel>> GetDatesOfSystem()
         {
             var products = await GetAllViewModel();
             var users = await _accountService.GetAllUsersAsync();
-            var payments = await _paymentService.GetAllViewModel();
+            //var payments = await _paymentService.GetAllViewModel();
             var transactions = await _transactionService.GetAllViewModel();
 
             foreach (var activeUsers in products)
             {
                 activeUsers.Users = users; 
-                activeUsers.Payments = payments; 
+                //activeUsers.Payments = payments; 
                 activeUsers.Transactions = transactions; 
             }
 

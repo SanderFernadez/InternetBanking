@@ -64,7 +64,7 @@ namespace WebApp.InternetBanking.Controllers
                 // Verifica si el rol del usuario es 'Client'.
                 if (userVm.Roles.Contains(Roles.Client.ToString()))
                 {
-                    return RedirectToRoute(new { Controller = "User", action = "Home" });
+                    return RedirectToRoute(new { Controller = "BankAccount", action = "Index" });
                 }
                 // Verifica si el rol del usuario es 'Admin'.
                 if (userVm.Roles.Contains(Roles.Admin.ToString()))

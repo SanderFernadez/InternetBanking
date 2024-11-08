@@ -1,0 +1,113 @@
+﻿@using InternetBanking.Core.Application.ViewModels.BankAccounts
+@using InternetBanking.Core.Domain.Enums
+@model List<BankAccountViewModel>
+
+@{
+    ViewData["Title"] = "Productos del Cliente";
+
+    // Calcula el número de cuentas de ahorro (Saving y SavingPrincipal)
+    var savingAccountsCount = Model.Count(account => account.AccountType == AccountType.Saving || account.AccountType == AccountType.SavingPrincipal);
+}
+
+@if (Model.FirstOrDefault()?.UserId == null)
+{
+    <div class="alert alert-warning text-center mt-3">UserId no está disponible en el Model</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center mt-3">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="container-fluid mt-5">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="font-weight-bold text-primary">Productos Actuales del Cliente</h2>
+        </div>
+        <div class="col-md-4 text-md-right">
+            <p class="lead"><strong>Total de Tarjetas de Ahorro:</strong> @savingAccountsCount</p>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var account in Model)
+        {
+            var iconHtml = "";
+            var title = "";
+
+            if (account.AccountType == AccountType.Saving || account.AccountType == AccountType.SavingPrincipal)
+            {
+                iconHtml = "<i class='fas fa-piggy-bank text-success mr-2'></i>";
+                title = " Cuenta de Ahorro";
+            }
+            else if (account.AccountType == AccountType.Credit)
+            {
+                iconHtml = "<i class='fas fa-credit-card text-warning mr-2'></i>";
+                title = " Tarjeta de Crédito";
+            }
+            else if (account.AccountType == AccountType.Loan)
+            {
+                iconHtml = "<i class='fas fa-hand-holding-usd text-danger mr-2'></i>";
+                title = " Préstamo";
+            }
+
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold d-flex align-items-center">
+                            @Html.Raw(iconHtml) @title
+                        </h5>
+
+                        <p class="card-text mt-3">
+                            <strong>Número de Cuenta:</strong> <span class="text-muted">@account.AccountNumber</span>
+                        </p>
+
+                        @if (account.AccountType == AccountType.Saving || account.AccountType == AccountType.SavingPrincipal)
+                        {
+                            <p class="card-text">
+                                <strong>Saldo:</strong> <span class="text-success">$@account.CurrentBalance</span>
+                            </p>
+                        }
+                        else if (account.AccountType == AccountType.Credit)
+                        {
+                            <p class="card-text">
+                                <strong>Deuda:</strong> <span class="text-warning">$@account.CreditLimit</span>
+                            </p>
+                        }
+                        else if (account.AccountType == AccountType.Loan)
+                        {
+                            <p class="card-text">
+                                <strong>Deuda del Préstamo:</strong> <span class="text-danger">$@account.LoanAmount</span>
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer text-center bg-light border-0">
+                        <small class="text-muted">Detalles actualizados</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+    .card-title i {
+        font-size: 1.5em;
+    }
+
+    .lead {
+        font-size: 1em;
+        color: #007bff;
+    }
+</style>

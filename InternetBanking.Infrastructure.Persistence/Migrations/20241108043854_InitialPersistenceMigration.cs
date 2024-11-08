@@ -84,6 +84,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     AccountId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TransactionType = table.Column<int>(type: "int", nullable: false),
+                    SourceAccount = table.Column<int>(type: "int", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -133,6 +134,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TransactionId = table.Column<int>(type: "int", nullable: false),
                     DestinationAccount = table.Column<int>(type: "int", nullable: false),
+                    SourceAccount = table.Column<int>(type: "int", nullable: false),
                     AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TransactionType = table.Column<int>(type: "int", nullable: false)
