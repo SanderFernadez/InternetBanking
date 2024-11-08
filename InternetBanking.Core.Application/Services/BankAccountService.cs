@@ -48,7 +48,7 @@ namespace InternetBanking.Core.Application.Services
         {
            // vm.UserId = _userViewModel.Id;
             //vm.CreatedAt = DateTime.Now;
-           // await base.Update(vm, Id);
+            await base.Update(vm, Id);
         }
 
         public async Task<int> NumberOfProductsClient()
