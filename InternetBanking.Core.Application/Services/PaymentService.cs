@@ -49,7 +49,7 @@ namespace InternetBanking.Core.Application.Services
             // Validar que la cuenta de origen tiene suficiente saldo
             if (originAccount.CurrentBalance < vm.AmountPaid)
             {
-                throw new InvalidOperationException("No tiene suficiente saldo en la cuenta de origen para realizar el pago.");
+                throw new InvalidOperationException("Ustes no tiene suficiente dinero en su cuenta");
             }
 
             // Realizar la transacción si todas las validaciones pasaron

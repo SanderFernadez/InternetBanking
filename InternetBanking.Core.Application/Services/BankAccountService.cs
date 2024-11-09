@@ -129,24 +129,6 @@ namespace InternetBanking.Core.Application.Services
 
 
 
-        public async Task<List<BankAccountViewModel>> GetDatesOfSystem()
-        {
-            var products = await GetAllViewModel();
-            var users = await _accountService.GetAllUsersAsync();
-            //var payments = await _paymentService.GetAllViewModel();
-            var transactions = await _transactionService.GetAllViewModel();
-
-            foreach (var activeUsers in products)
-            {
-                activeUsers.Users = users; 
-                //activeUsers.Payments = payments; 
-                activeUsers.Transactions = transactions; 
-            }
-
-            return products;
-        }
-
-
         public int GenerateAccountNumber()
         {
             return _random.Next(100000000, 1000000000); 

@@ -11,8 +11,6 @@ namespace InternetBanking.Core.Application.Interfaces.Services
         int GenerateAccountNumber();
         Task<int> NumberOfProductsClient();
 
-        Task<List<BankAccountViewModel>> GetDatesOfSystem();
-
         Task<AuthenticationResponse> GetUserAccount(int accountnumber);
         Task<List<BankAccountViewModel>> GetClientProducts(string UserId);
 

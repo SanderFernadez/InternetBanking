@@ -4,9 +4,11 @@ using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Domain.Enums;
 using InternetBanking.Core.Application.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.InternetBanking.Controllers
 {
+    [Authorize]
     public class BankAccountController : Controller
     {
         private readonly IBankAccountService _bankAccountService;
@@ -21,6 +23,7 @@ namespace WebApp.InternetBanking.Controllers
 
         }
 
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> Index()
         {
             var products = await _bankAccountService.GetClientProducts(_userViewModel.Id);
@@ -28,7 +31,7 @@ namespace WebApp.InternetBanking.Controllers
             return View(products);
         }
 
-
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> EditProduct(string UserId)
         {
             var products = await _bankAccountService.GetClientProducts(UserId);
@@ -38,6 +41,7 @@ namespace WebApp.InternetBanking.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> CreateProduct(string UserId, AccountType accountType, decimal creditLimit, decimal loanAmount)
         {
             await _bankAccountService.CreateProduct(accountType, UserId, creditLimit, loanAmount);
@@ -45,6 +49,7 @@ namespace WebApp.InternetBanking.Controllers
         } 
         
         [HttpPost]
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> DeleteProduct(int Id, string UserId)
         {
             await _bankAccountService.Delete(Id);

@@ -35,11 +35,7 @@ namespace InternetBanking.Core.Application.Mappings
               .ForMember(x => x.DestinationTransfers, opt => opt.Ignore());
 
             CreateMap<BankAccountViewModel, SaveBankAccountViewModel>()
-              .ReverseMap()
-              .ForMember(x => x.Transactions, opt => opt.Ignore())
-              .ForMember(x => x.Users, opt => opt.Ignore())
-              .ForMember(x => x.Transactions, opt => opt.Ignore())
-              .ForMember(x => x.Payments, opt => opt.Ignore());
+              .ReverseMap();
 
             #endregion
 

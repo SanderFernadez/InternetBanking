@@ -1,10 +1,12 @@
 ﻿using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Beneficiary;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.InternetBanking.Controllers
 
 {
+    [Authorize]
     public class BeneficiaryController : Controller
     {
 
@@ -17,6 +19,7 @@ namespace WebApp.InternetBanking.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> Index()
         {
             var beneficiaries = await _beneficiaryService.LoadBeneficiary(); 
@@ -26,6 +29,7 @@ namespace WebApp.InternetBanking.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> DeletePost (int Id)
         {
             await _beneficiaryService.Delete(Id);
@@ -34,7 +38,7 @@ namespace WebApp.InternetBanking.Controllers
 
 
 
-
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> AddBeneficiary(int beneficiaryAccount)
         {
             var result = await _beneficiaryService.AddBeneficiaryAccount(beneficiaryAccount);

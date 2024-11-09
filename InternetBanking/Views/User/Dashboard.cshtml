@@ -1,5 +1,5 @@
-﻿@using InternetBanking.Core.Application.ViewModels.BankAccounts
-@model List<BankAccountViewModel>
+﻿@using InternetBanking.Core.Application.Dtos.SystemDates
+@model List<BankAccountResponse>
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -7,188 +7,194 @@
 
 <div class="container mt-4">
     <div class="dashboard">
-        <!-- Tarjeta de Resumen de Transacciones -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-exchange-alt"></i> Resumen de Transacciones
-            </div>
-            <div class="card-body">
-                @{
-                    int alltransactions = 0;
-                    int dailytransactions = 0;
+        @if (Model != null && Model.Any())
+        {
+            <!-- Tarjeta de Resumen de Transacciones -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-exchange-alt"></i> Resumen de Transacciones
+                </div>
+                <div class="card-body">
+                    @{
+                        int alltransactions = 0;
+                        int dailytransactions = 0;
 
-                    var firstItem = Model.First();
-                    foreach (var transaction in firstItem.Transactions)
-                    {
-                        alltransactions++;
-                        if (transaction.TransactionDate.Date == DateTime.Now.Date)
+                        var firstItem = Model.First();
+                        foreach (var transaction in firstItem.Transactions)
                         {
-                            dailytransactions++;
+                            alltransactions++;
+                            if (transaction.TransactionDate.Date == DateTime.Now.Date)
+                            {
+                                dailytransactions++;
+                            }
                         }
                     }
-                }
-                <h2>@alltransactions</h2>
-                <p>Transacciones de Hoy: <span>@dailytransactions</span></p>
+                    <h2>@alltransactions</h2>
+                    <p>Transacciones de Hoy: <span>@dailytransactions</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
             </div>
-            <div class="card-footer text-muted">
-                Última actualización: @DateTime.Now.ToString("g")
-            </div>
-        </div>
 
-        <!-- Tarjeta de Resumen de Pagos -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-dollar-sign"></i> Resumen de Pagos
-            </div>
-            <div class="card-body">
-                @{
-                    int allpayments = 0;
-                    int dailypayments = 0;
+            <!-- Tarjeta de Resumen de Pagos -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-dollar-sign"></i> Resumen de Pagos
+                </div>
+                <div class="card-body">
+                    @{
+                        int allpayments = 0;
+                        int dailypayments = 0;
 
-                    var firstItem2 = Model.First();
-                 
-                    foreach (var payment in firstItem2.Payments)
-                    {
-                        allpayments++;
-                        if (payment.PaymentDate.Date == DateTime.Now.Date)
+                        var firstItem2 = Model.First();
+
+                        foreach (var payment in firstItem2.Payments)
                         {
-                            dailypayments++;
+                            allpayments++;
+                            if (payment.PaymentDate.Date == DateTime.Now.Date)
+                            {
+                                dailypayments++;
+                            }
                         }
                     }
-                }
-                <h2>@allpayments</h2>
-                <p>Pagos de Hoy: <span>@dailypayments</span></p>
+                    <h2>@allpayments</h2>
+                    <p>Pagos de Hoy: <span>@dailypayments</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
             </div>
-            <div class="card-footer text-muted">
-                Última actualización: @DateTime.Now.ToString("g")
-            </div>
-        </div>
 
-        <!-- Tarjeta de Resumen de Usuarios -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-users"></i> Resumen de Usuarios
-            </div>
-            <div class="card-body">
-                @{
-                    int activeUsersCount = 0;
-                    int inactiveUsersCount = 0;
+            <!-- Tarjeta de Resumen de Usuarios -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-users"></i> Resumen de Usuarios
+                </div>
+                <div class="card-body">
+                    @{
+                        int activeUsersCount = 0;
+                        int inactiveUsersCount = 0;
 
-                    var firstItem3 = Model.First();
-                    foreach (var user in firstItem3.Users)
-                    {
-
-                        if (user.IsVerified)
+                        var firstItem3 = Model.First();
+                        foreach (var user in firstItem3.Users)
                         {
-                            activeUsersCount++;
-                        }
-                        else
-                        {
-                           
-                            inactiveUsersCount++;
+                            if (user.IsVerified)
+                            {
+                                activeUsersCount++;
+                            }
+                            else
+                            {
+                                inactiveUsersCount++;
+                            }
                         }
                     }
-                }
-                <h2>@activeUsersCount</h2>
-                <p>Usuarios Inactivos: <span>@inactiveUsersCount</span></p>
+                    <h2>@activeUsersCount</h2>
+                    <p>Usuarios Inactivos: <span>@inactiveUsersCount</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
             </div>
-            <div class="card-footer text-muted">
-                Última actualización: @DateTime.Now.ToString("g")
-            </div>
-        </div>
 
-        <!-- Tarjeta de Cantidad de Productos -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-box"></i> Productos Asignados
+            <!-- Tarjeta de Resumen de Productos -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-box"></i> Productos asignados a usuarios
+                </div>
+                <div class="card-body">
+                    @{
+                        int allproducts = Model.Count; // Contar todos los productos en la lista Model
+                    }
+                    <h2>@allproducts</h2>
+                    <p>Este es el número total de productos asignados a los usuarios.</p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
             </div>
-            <div class="card-body">
-                <h2>@Model.Count</h2>
-                <p>Cantidad de Productos</p>
-            </div>
-            <div class="card-footer text-muted">
-                Última actualización: @DateTime.Now.ToString("g")
-            </div>
-        </div>
-    </div>
+
+        }
+        else
+        {
+            <p>No hay datos disponibles.</p>
+        }
+    </div>
 </div>
 
-
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f9;
-    margin: 0;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+    }
 
-.container {
-    max-width: 1200px; /* Aumenta el ancho máximo del contenedor */
-    margin: 0px auto;
-    margin-top: 50px !important;
-    padding: 20px;
-}
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-top: 50px !important;
+        padding: 20px;
+    }
 
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    margin: 0 auto;
-}
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin: 0 auto;
+    }
 
-.card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-height: 200px; /* Aumenta la altura mínima de las tarjetas */
-}
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 200px;
+    }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-}
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+        }
 
-.card-header {
-    background-color: #4a90e2;
-    color: #ffffff;
-    padding: 15px;
-    font-size: 18px; /* Aumenta el tamaño de la fuente */
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
+    .card-header {
+        background-color: #4a90e2;
+        color: #ffffff;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
 
-.card-body {
-    padding: 30px 20px; /* Aumenta el espaciado interno */
-}
+    .card-body {
+        padding: 30px 20px;
+    }
 
-.card-body h2 {
-    font-size: 40px;
-    color: #4a90e2;
-    margin: 0;
-}
+        .card-body h2 {
+            font-size: 40px;
+            color: #4a90e2;
+            margin: 0;
+        }
 
-.card-body p {
-    margin-top: 10px;
-    font-size: 16px; /* Aumenta el tamaño de la fuente */
-    color: #555555;
-}
+        .card-body p {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555555;
+        }
 
-.card-body span {
-    font-weight: bold;
-    color: #4a90e2;
-}
+        .card-body span {
+            font-weight: bold;
+            color: #4a90e2;
+        }
 
-.card-footer {
-    background-color: #f9f9f9;
-    font-size: 12px;
-    color: #888888;
-    padding: 10px;
-}
-
-
+    .card-footer {
+        background-color: #f9f9f9;
+        font-size: 12px;
+        color: #888888;
+        padding: 10px;
+    }
 </style>

@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using InternetBanking.Core.Application.Dtos.SystemDates;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
@@ -29,27 +30,33 @@ namespace InternetBanking.Core.Application.Services
 
 
 
-        public async Task<List<BankAccountViewModel>> GetDatesOfSystem()
+        public async Task<List<BankAccountResponse>> GetDatesOfSystem()
         {
+            // Obtener datos de cada entidad
             var products = await _bankAccountService.GetAllViewModel();
             var users = await _accountService.GetAllUsersAsync();
             var payments = await _paymentService.GetAllViewModel();
             var transactions = await _transactionService.GetAllViewModel();
 
-            foreach (var activeUsers in products)
+            // Mapear los productos a BankAccountResponse
+            var responseList = products.Select(product => new BankAccountResponse
             {
-                activeUsers.Users = users;
-                activeUsers.Payments = payments; 
-                activeUsers.Transactions = transactions;
-            }
+                accounts = products,
+                Users = users,            // Asignar lista de usuarios
+                Payments = payments,      // Asignar lista de pagos
+                Transactions = transactions // Asignar lista de transacciones
+            }).ToList();
 
-            return products;
+            return responseList;
         }
 
 
-
-
-
-
     }
+
+
+
+
+
+
 }
+

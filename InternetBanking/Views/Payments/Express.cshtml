@@ -24,7 +24,6 @@
                     <span asp-validation-for="AmountPaid" class="text-danger"></span>
                 </div>
 
-
                 <!-- Cuenta de Origen -->
                 <div class="mb-4">
                     <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
@@ -87,28 +86,62 @@
     </div>
 </div>
 
-<script>
+@section Scripts {
+    <!-- Scripts de Validación de ASP.NET Core -->
+    <partial name="_ValidationScriptsPartial" />
 
-    function showConfirmationModal() {
-        const destinationAccount = document.querySelector('input[name="DestinationAccount"]').value;
-        const amountPaid = document.querySelector('input[name="AmountPaid"]').value;
+    <!-- Validación de Monto Positivo en el Cliente y Cuenta de Origen Seleccionada -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.querySelector('input[name="AmountPaid"]');
+            const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
 
-        // Llama al controlador para obtener la información del dueño de la cuenta destino
-        fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
-                    document.getElementById("confirmationAmount").innerText = amountPaid;
-                    document.getElementById("confirmationModal").style.display = "block";
-                } else {
-                    alert("Cuenta destino no encontrada.");
+            amountInput.addEventListener("input", function () {
+                if (this.value < 0) {
+                    this.value = "";  // Limpia el campo si el valor es negativo
+                    alert("El monto debe ser un valor positivo.");
                 }
-            })
-            .catch(error => console.error('Error:', error));
-    }
+            });
 
-    function confirmPayment() {
-        document.getElementById("paymentForm").submit();
-    }
-</script>
+            function showAlert(message) {
+                alert(message);
+            }
+
+            window.showConfirmationModal = function () {
+                const destinationAccount = document.querySelector('input[name="DestinationAccount"]').value;
+                const amountPaid = document.querySelector('input[name="AmountPaid"]').value;
+
+                if (!destinationAccount) {
+                    showAlert("Por favor, ingrese el número de cuenta destino.");
+                    return;
+                }
+                if (!sourceAccountSelect.value) {
+                    showAlert("Por favor, seleccione una cuenta de origen.");
+                    return;
+                }
+                if (!amountPaid || amountPaid <= 0) {
+                    showAlert("Por favor, ingrese un monto válido.");
+                    return;
+                }
+
+                // Llama al controlador para obtener la información del dueño de la cuenta destino
+                fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
+                            document.getElementById("confirmationAmount").innerText = amountPaid;
+                            document.getElementById("confirmationModal").style.display = "block";
+                        } else {
+                            alert("Cuenta destino no encontrada.");
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            window.confirmPayment = function () {
+                document.getElementById("paymentForm").submit();
+            }
+        });
+    </script>
+}

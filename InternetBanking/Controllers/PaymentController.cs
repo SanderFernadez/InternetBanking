@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.ViewModels.Payments;
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Interfaces.Services;
-using InternetBanking.Infrastructure.Identity.Services;
+using Microsoft.AspNetCore.Authorization;
 
-
+[Authorize(Roles = "Client")]
 public class PaymentsController : Controller
 {
 
@@ -26,44 +24,41 @@ public class PaymentsController : Controller
     }
 
 
-
+    // Método GET para cargar la vista inicial con las cuentas
     public async Task<IActionResult> Express()
     {
-
         var model = await _bankAccountService.GetAccounts();
         SavePaymentViewModel vm = new()
         {
             accounts = model
-
         };
+
         return View(vm);
     }
 
-
+    // Método POST para procesar el formulario de pago
     [HttpPost]
-    public async Task<IActionResult> Express( SavePaymentViewModel vm)
+    public async Task<IActionResult> Express(SavePaymentViewModel vm)
     {
-       
         if (!ModelState.IsValid)
         {
-            return RedirectToAction("Express");
-
+            // Enviar nuevamente la lista de cuentas al modelo en caso de errores de validación
+            vm.accounts = await _bankAccountService.GetAccounts();
+            return View(vm);  // Muestra la misma vista con errores
         }
 
         await _paymentService.UpdateAccounts(vm);
 
+        // Redirigir a la misma vista para confirmar la operación exitosa
         return RedirectToAction("Express");
     }
 
-
+    // Método para obtener el propietario de una cuenta
     public async Task<IActionResult> GetAccountOwner(int accountNumber)
     {
-
-
         if (!ModelState.IsValid)
         {
             return RedirectToAction("Express");
-
         }
 
         var account = await _bankAccountService.GetUserAccount(accountNumber);
@@ -71,6 +66,7 @@ public class PaymentsController : Controller
         {
             return Json(new { success = true, firstName = account.FirstName, lastName = account.LastName });
         }
+
         return Json(new { success = false });
     }
 
