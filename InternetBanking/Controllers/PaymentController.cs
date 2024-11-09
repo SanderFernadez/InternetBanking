@@ -4,6 +4,7 @@ using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.ViewModels.Payments;
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Interfaces.Services;
+using InternetBanking.Infrastructure.Identity.Services;
 
 
 public class PaymentsController : Controller
@@ -42,10 +43,35 @@ public class PaymentsController : Controller
     [HttpPost]
     public async Task<IActionResult> Express( SavePaymentViewModel vm)
     {
+       
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction("Express");
+
+        }
 
         await _paymentService.UpdateAccounts(vm);
 
         return RedirectToAction("Express");
+    }
+
+
+    public async Task<IActionResult> GetAccountOwner(int accountNumber)
+    {
+
+
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction("Express");
+
+        }
+
+        var account = await _bankAccountService.GetUserAccount(accountNumber);
+        if (account != null)
+        {
+            return Json(new { success = true, firstName = account.FirstName, lastName = account.LastName });
+        }
+        return Json(new { success = false });
     }
 
 

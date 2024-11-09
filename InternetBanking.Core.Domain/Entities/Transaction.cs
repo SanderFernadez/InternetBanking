@@ -15,8 +15,7 @@ namespace InternetBanking.Core.Domain.Entities
         // Relación muchos a uno con Cuenta
         public Account Account { get; set; }
 
-        // Relación uno a uno con Pago
-        public Payment Payment { get; set; }
+       
 
     }
 }

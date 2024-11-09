@@ -5,10 +5,10 @@
     <div class="modal-content">
         <div class="modal-header bg-primary text-white">
             <h5 class="modal-title">Pago Expreso</h5>
-           
         </div>
         <div class="modal-body">
-            <form method="post" action="@Url.Action("Express", "Payments")">
+            <!-- Formulario de Pago -->
+            <form id="paymentForm" method="post" action="@Url.Action("Express", "Payments")">
 
                 <!-- Número de Cuenta Destino -->
                 <div class="mb-4">
@@ -20,9 +20,10 @@
                 <!-- Monto -->
                 <div class="mb-4">
                     <label asp-for="AmountPaid" class="form-label font-weight-bold">Monto</label>
-                    <input asp-for="AmountPaid" class="form-control form-control-lg" placeholder="Ingrese el monto" type="number" step="0.01" required />
+                    <input asp-for="AmountPaid" class="form-control form-control-lg" placeholder="Ingrese el monto" type="number" step="0.01" min="0.01" />
                     <span asp-validation-for="AmountPaid" class="text-danger"></span>
                 </div>
+
 
                 <!-- Cuenta de Origen -->
                 <div class="mb-4">
@@ -43,7 +44,6 @@
                 @{
                     int i = 0;
                 }
-
                 @foreach (var account in Model.accounts)
                 {
                     <input type="hidden" name="Accounts[@i].Id" value="@account.Id" />
@@ -57,11 +57,58 @@
                     i++;
                 }
 
-
+                <!-- Botón para abrir el modal de confirmación -->
                 <div class="modal-footer d-flex justify-content-between">
-                    <button type="submit" class="btn btn-primary">Realizar Pago</button>
+                    <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Realizar Pago</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Modal de Confirmación -->
+<div id="confirmationModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmación de Pago</h5>
+                <button type="button" class="close" onclick="document.getElementById('confirmationModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Deseas confirmar el pago a la cuenta destino?</p>
+                <p><strong>Nombre del Destinatario:</strong> <span id="ownerName"></span></p>
+                <p><strong>Monto:</strong> <span id="confirmationAmount"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('confirmationModal').style.display='none'">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPayment()">Confirmar Pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function showConfirmationModal() {
+        const destinationAccount = document.querySelector('input[name="DestinationAccount"]').value;
+        const amountPaid = document.querySelector('input[name="AmountPaid"]').value;
+
+        // Llama al controlador para obtener la información del dueño de la cuenta destino
+        fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
+                    document.getElementById("confirmationAmount").innerText = amountPaid;
+                    document.getElementById("confirmationModal").style.display = "block";
+                } else {
+                    alert("Cuenta destino no encontrada.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function confirmPayment() {
+        document.getElementById("paymentForm").submit();
+    }
+</script>

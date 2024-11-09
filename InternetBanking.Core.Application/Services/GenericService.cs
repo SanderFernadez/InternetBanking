@@ -46,7 +46,7 @@ namespace InternetBanking.Core.Application.Services
             }
 
             public virtual async Task<SaveViewModel> GetByIdSaveViewModel(int id)
-            {
+           {
                 var entity = await _repository.GetByIdAsync(id);
 
                 SaveViewModel vm = _mapper.Map<SaveViewModel>(entity);

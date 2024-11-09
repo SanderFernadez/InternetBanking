@@ -22,14 +22,16 @@ namespace WebApp.InternetBanking.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountService _accountService;
         private readonly IBankAccountService _bankaccountService;
+        private readonly ITransferService _trasnferService;
 
 
-        public UserController(IUserService userService, IBankAccountService bankaccountService, IHttpContextAccessor httpContextAccessor, IAccountService accountService)
+        public UserController(ITransferService trasnferService, IUserService userService, IBankAccountService bankaccountService, IHttpContextAccessor httpContextAccessor, IAccountService accountService)
         {
             _userService = userService;
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
             _bankaccountService = bankaccountService;
+            _trasnferService = trasnferService;
 
         }
 
@@ -177,11 +179,9 @@ namespace WebApp.InternetBanking.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dashboard()
         {
-            var numberproducts = await _bankaccountService.GetDatesOfSystem(); 
+            var numberproducts = await _trasnferService.GetDatesOfSystem(); 
             return View("Dashboard", numberproducts);
         }
-
-
 
 
         public async Task<IActionResult> LogOut()

@@ -1,4 +1,4 @@
-﻿@using InternetBanking.Core.Application.ViewModels.Payments
+﻿@* @using InternetBanking.Core.Application.ViewModels.Payments
 @model SavePaymentViewModel
 
 <div class="modal-dialog">
@@ -9,15 +9,15 @@
         <div class="modal-body">
             <form method="post" action="@Url.Action("ProcesarPagoPrestamo", "Payments")">
                 <div class="mb-3">
-                    <label asp-for="TransactionId" class="form-label">Préstamo</label>
-                    <select asp-for="TransactionId" class="form-select">
+                    <label asp-for="" class="form-label">Préstamo</label>
+                    <select asp-for="" class="form-select">
                         <option selected>Seleccione un préstamo</option>
                         @foreach (var prestamo in ViewBag.Prestamos)
                         {
                             <option value="@prestamo.Value">@prestamo.Text</option>
                         }
                     </select>
-                    <span asp-validation-for="TransactionId" class="text-danger"></span>
+                    <span asp-validation-for="" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="AmountPaid" class="form-label">Monto</label>
@@ -42,3 +42,4 @@
         </div>
     </div>
 </div>
+ *@

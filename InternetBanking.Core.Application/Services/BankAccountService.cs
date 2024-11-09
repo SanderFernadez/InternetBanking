@@ -4,6 +4,7 @@ using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
+
 using InternetBanking.Core.Domain.Entities;
 using InternetBanking.Core.Domain.Enums;
 using Microsoft.AspNetCore.Http;
@@ -38,16 +39,14 @@ namespace InternetBanking.Core.Application.Services
 
         public override async Task<SaveBankAccountViewModel> Add(SaveBankAccountViewModel vm)
         {
-            //vm.UserId = _userViewModel.Id;
-           //vm.CreatedAt = DateTime.Now;
+            
            return await base.Add(vm);
         }
 
 
         public override async Task Update(SaveBankAccountViewModel vm, int Id)
         {
-           // vm.UserId = _userViewModel.Id;
-            //vm.CreatedAt = DateTime.Now;
+           
             await base.Update(vm, Id);
         }
 
@@ -60,6 +59,61 @@ namespace InternetBanking.Core.Application.Services
 
             return totalProducts;
         }
+
+
+
+
+
+
+
+
+
+
+        public async Task<AuthenticationResponse> GetUserAccount(int accountnumber)
+        {
+            // Llama al método para obtener todos los beneficiarios.
+            var accounts = await GetAllViewModel();
+            var users = await _accountService.GetAllUsersAsync();
+
+            var selectedAccount = accounts.FirstOrDefault(a => a.AccountNumber == accountnumber);
+
+            if (selectedAccount == null)
+            {
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
+            }
+
+
+            var selectedUser =users.FirstOrDefault(u => u.Id == selectedAccount.UserId);
+
+
+            if (selectedUser == null)
+            {
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
+            }
+
+            var response = new AuthenticationResponse
+            { 
+                Id = selectedUser.Id,
+                FirstName = selectedUser.FirstName,
+                LastName = selectedUser.LastName,
+                Email = selectedUser.Email,
+            
+            
+            };
+
+
+
+            return response;
+        }
+
+
+
+
+
+
+
 
 
         public async Task<List<BankAccountViewModel>> GetAccounts()

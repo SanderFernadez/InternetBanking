@@ -138,16 +138,10 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Property<int>("SourceAccount")
                         .HasColumnType("int");
 
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TransactionId")
-                        .IsUnique();
 
                     b.ToTable("Payments", (string)null);
                 });
@@ -230,17 +224,6 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Navigation("DestinationAccount");
                 });
 
-            modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Payment", b =>
-                {
-                    b.HasOne("InternetBanking.Core.Domain.Entities.Transaction", "Transaction")
-                        .WithOne("Payment")
-                        .HasForeignKey("InternetBanking.Core.Domain.Entities.Payment", "TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Transaction");
-                });
-
             modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("InternetBanking.Core.Domain.Entities.Account", "Account")
@@ -280,12 +263,6 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Navigation("OriginTransfers");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Transaction", b =>
-                {
-                    b.Navigation("Payment")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

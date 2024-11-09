@@ -14,14 +14,12 @@ namespace InternetBanking.Core.Application.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly IBankAccountService _bankAccountService;
-        private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
 
-        public PaymentService(ITransactionService transactionService, IPaymentRepository paymentRepository, IMapper mapper, IBankAccountService bankAccountService ) : base( paymentRepository,mapper) 
+        public PaymentService(IPaymentRepository paymentRepository, IMapper mapper, IBankAccountService bankAccountService ) : base( paymentRepository,mapper) 
         {
             _paymentRepository = paymentRepository;
             _bankAccountService = bankAccountService;
-            _transactionService = transactionService;
             _mapper = mapper;
         }
 
@@ -97,32 +95,39 @@ namespace InternetBanking.Core.Application.Services
 
 
             // Registrar el pago en la base de datos
-            var paymentRecord = new SaveTransactionViewModel
-            {
-                SourceAccount = originAccount.AccountNumber,
-                AccountId = destinationAccount.Id,
-                Amount = vm.AmountPaid,
-                TransactionDate = DateTime.Now,
-                TransactionType = vm.TransactionType
-            };
 
-            await _transactionService.Add(paymentRecord);
-        }
-
-        public async Task SaveTransaction(SaveTransactionViewModel vm)
-        {
-            SavePaymentViewModel transaction = new()
+            SavePaymentViewModel payment = new()
             {
-                TransactionId = 11,
-                DestinationAccount = vm.AccountId,
-                AmountPaid = vm.Amount,
+                
+                DestinationAccount = vm.DestinationAccount,
+                AmountPaid = vm.AmountPaid,
                 SourceAccount = vm.SourceAccount,
                 TransactionType = vm.TransactionType,
                 PaymentDate = DateTime.Now
             };
 
-            await base.Add(transaction);
+            await base.Add(payment);
+
+
         }
+
+        ////public async Task SaveTransaction(SaveTransactionViewModel vm)
+        ////{
+            
+
+        ////    var paymentRecord = new SaveTransactionViewModel
+        ////    {
+        ////        SourceAccount = vm.SourceAccount,
+        ////        AccountId = vm.Id,
+        ////        Amount = vm.Amount,
+        ////        TransactionDate = DateTime.Now,
+        ////        TransactionType = vm.TransactionType
+        ////    };
+
+        ////    await _transactionService.Add(paymentRecord);
+
+
+        ////}
 
 
 

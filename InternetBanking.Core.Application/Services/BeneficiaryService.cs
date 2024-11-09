@@ -53,6 +53,14 @@ namespace InternetBanking.Core.Application.Services
         }
 
 
+
+
+
+   
+
+
+
+
         public async Task<BeneficiaryViewModel?> AddBeneficiaryAccount(int beneficiaryAccount)
         {
             // Obtener todas las cuentas bancarias, usuarios y beneficiarios actuales
