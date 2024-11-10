@@ -8,7 +8,7 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 {
     public interface IPaymentService: IGenericService<SavePaymentViewModel, PaymentViewModel, Payment>
     {
-        //Task SaveTransaction(SaveTransactionViewModel vm);
-        Task UpdateAccounts(SavePaymentViewModel vm);
+        Task<SavePaymentViewModel> UpdateCreditAccounts(SavePaymentViewModel vm);
+        Task<SavePaymentViewModel> UpdateAccounts(SavePaymentViewModel vm);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
+using InternetBanking.Core.Application.Dtos.BankAccounts;
 using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
@@ -64,12 +65,7 @@ namespace InternetBanking.Core.Application.Services
 
 
 
-
-
-
-
-
-        public async Task<AuthenticationResponse> GetUserAccount(int accountnumber)
+        public async Task<UserBankAccouns> GetUserAccount(int accountnumber)
         {
             // Llama al método para obtener todos los beneficiarios.
             var accounts = await GetAllViewModel();
@@ -93,16 +89,20 @@ namespace InternetBanking.Core.Application.Services
                 return null;
             }
 
-            var response = new AuthenticationResponse
+            var response = new UserBankAccouns
             { 
                 Id = selectedUser.Id,
                 FirstName = selectedUser.FirstName,
                 LastName = selectedUser.LastName,
-                Email = selectedUser.Email,
+                InitialAmount = selectedAccount.InitialAmount,
+                CurrentBalance = selectedAccount.CurrentBalance,
+                CreditLimit = selectedAccount.CreditLimit ?? 0,
+
             
             
             };
 
+            
 
 
             return response;

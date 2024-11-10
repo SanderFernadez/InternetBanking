@@ -21,7 +21,7 @@ namespace InternetBanking.Core.Application.ViewModels.Payments
 
         [Required(ErrorMessage = "El monto es obligatorio.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor que cero.")]
-        public decimal AmountPaid { get; set; }
+        public Decimal AmountPaid { get; set; }
 
        
         public DateTime PaymentDate { get; set; }

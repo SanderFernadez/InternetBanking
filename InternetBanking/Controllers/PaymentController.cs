@@ -47,7 +47,14 @@ public class PaymentsController : Controller
             return View(vm);  // Muestra la misma vista con errores
         }
 
-        await _paymentService.UpdateAccounts(vm);
+        var model = await _paymentService.UpdateAccounts(vm);
+       
+        if(model == null)
+        {
+            TempData["ErrorMessage"] = "No tiene suficiente dinero para realizar esta transacción.";
+            return RedirectToAction("Express");
+
+        }
 
         // Redirigir a la misma vista para confirmar la operación exitosa
         return RedirectToAction("Express");
@@ -71,4 +78,41 @@ public class PaymentsController : Controller
     }
 
 
+    // Método GET para cargar la vista inicial con las cuentas
+    public async Task<IActionResult> CreditCard()
+    {
+        var model = await _bankAccountService.GetAccounts();
+        SavePaymentViewModel vm = new()
+        {
+            accounts = model
+        };
+
+        return View(vm);
+    }
+
+
+    // Método POST para procesar el formulario de pago
+    [HttpPost]
+    public async Task<IActionResult> CreditCard(SavePaymentViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            // Enviar nuevamente la lista de cuentas al modelo en caso de errores de validación
+            vm.accounts = await _bankAccountService.GetAccounts();
+            return View(vm);  // Muestra la misma vista con errores
+        }
+
+       var model =  await _paymentService.UpdateCreditAccounts(vm);
+
+
+        if (model == null)
+        {
+            TempData["ErrorMessage"] = "No tiene suficiente dinero para realizar esta transacción.";
+            return RedirectToAction("CreditCard");
+
+        }
+
+        // Redirigir a la misma vista para confirmar la operación exitosa
+        return RedirectToAction("CreditCard");
+    }
 }
