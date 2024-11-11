@@ -53,8 +53,8 @@ namespace InternetBanking.Core.Application.Services
 
             // Realizar la transacción si todas las validaciones pasaron
             originAccount.CurrentBalance -= amountToPay;
-            destinationAccount.CurrentBalance += amountToPay;
             destinationAccount.LoanAmount -= amountToPay;
+           // destinationAccount.LoanAmount -= amountToPay;
 
             // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
             SaveBankAccountViewModel saveOriginAccount = new SaveBankAccountViewModel()
@@ -106,20 +106,6 @@ namespace InternetBanking.Core.Application.Services
 
             return payment;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
