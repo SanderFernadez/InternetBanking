@@ -168,14 +168,7 @@ namespace WebApp.InternetBanking.Controllers
         }
 
 
-        //public async Task<IActionResult> Dashboard()
-        //{
-        //    int numberproducts = await _bankaccountService.NumberOfProductsClient(); 
-        //    return View("Dashboard", numberproducts);
-        //} 
-
-
-        //[ServiceFilter(typeof(LoginAuthorize))]
+       
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dashboard()
         {

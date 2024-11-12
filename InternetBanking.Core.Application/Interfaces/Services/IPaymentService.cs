@@ -1,7 +1,6 @@
 ﻿
 
 using InternetBanking.Core.Application.ViewModels.Payments;
-using InternetBanking.Core.Application.ViewModels.Transactions;
 using InternetBanking.Core.Domain.Entities;
 
 namespace InternetBanking.Core.Application.Interfaces.Services
@@ -10,5 +9,7 @@ namespace InternetBanking.Core.Application.Interfaces.Services
     {
         Task<SavePaymentViewModel> UpdateCreditAccounts(SavePaymentViewModel vm);
         Task<SavePaymentViewModel> UpdateAccounts(SavePaymentViewModel vm);
+
+        Task<SavePaymentViewModel> UpdateBeneficiary(SavePaymentViewModel vm);
     }
 }

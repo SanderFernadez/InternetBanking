@@ -9,10 +9,7 @@
     var savingAccountsCount = Model.Count(account => account.AccountType == AccountType.Saving || account.AccountType == AccountType.SavingPrincipal);
 }
 
-@if (Model.FirstOrDefault()?.UserId == null)
-{
-    <div class="alert alert-warning text-center mt-3">UserId no está disponible en el Model</div>
-}
+
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -73,7 +70,7 @@
                         else if (account.AccountType == AccountType.Credit)
                         {
                             <p class="card-text">
-                                <strong>Deuda:</strong> <span class="text-warning">$@account.CreditLimit</span>
+                                <strong>Deuda:</strong> <span class="text-warning">$@account.LoanAmount</span>
                             </p>
                         }
                         else if (account.AccountType == AccountType.Loan)

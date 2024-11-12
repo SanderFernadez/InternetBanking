@@ -53,9 +53,6 @@ namespace InternetBanking.Core.Application.Services
         }
 
 
-
-
-
   
         public async Task<BeneficiaryViewModel?> AddBeneficiaryAccount(int beneficiaryAccount)
         {

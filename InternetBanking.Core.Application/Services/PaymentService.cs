@@ -5,6 +5,7 @@ using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
 using InternetBanking.Core.Application.ViewModels.Payments;
 using InternetBanking.Core.Domain.Entities;
+using InternetBanking.Core.Domain.Enums;
 
 namespace InternetBanking.Core.Application.Services
 {
@@ -28,7 +29,7 @@ namespace InternetBanking.Core.Application.Services
         {
             var allAccounts = await _bankAccountService.GetAllViewModel();
 
-            // Validar que la cuenta de tarjeta de crédito destino existe
+            // Validar que la cuenta destino existe
             var destinationAccount = allAccounts.FirstOrDefault(a => a.AccountNumber == vm.DestinationAccount);
             if (destinationAccount == null)
             {
@@ -48,13 +49,28 @@ namespace InternetBanking.Core.Application.Services
                 return null;
             }
 
-            // Verificar que el monto pagado no exceda la deuda de la tarjeta
-            decimal amountToPay = Math.Min(vm.AmountPaid, destinationAccount.LoanAmount ?? 0);
+            decimal amountToPay = vm.AmountPaid;
+
+            // Verificar si la cuenta de destino es una tarjeta de crédito o un préstamo
+            if (destinationAccount.AccountType == AccountType.Credit)
+            {
+                // Verificar que el monto pagado no exceda la deuda de la tarjeta
+                amountToPay = Math.Min(vm.AmountPaid, destinationAccount.CreditLimit ?? 0);
+                destinationAccount.LoanAmount -= amountToPay; // Reducir el límite de crédito en la cuenta de destino
+            }
+            else if (destinationAccount.AccountType == AccountType.Loan)
+            {
+                // Verificar que el monto pagado no exceda el préstamo
+                amountToPay = Math.Min(vm.AmountPaid, destinationAccount.LoanAmount ?? 0);
+                destinationAccount.LoanAmount -= amountToPay; // Reducir el monto del préstamo en la cuenta de destino
+            }
+            else
+            {
+                throw new InvalidOperationException("La cuenta destino no es ni una tarjeta de crédito ni un préstamo.");
+            }
 
             // Realizar la transacción si todas las validaciones pasaron
             originAccount.CurrentBalance -= amountToPay;
-            destinationAccount.LoanAmount -= amountToPay;
-           // destinationAccount.LoanAmount -= amountToPay;
 
             // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
             SaveBankAccountViewModel saveOriginAccount = new SaveBankAccountViewModel()
@@ -110,8 +126,78 @@ namespace InternetBanking.Core.Application.Services
 
 
 
+        public async Task<SavePaymentViewModel> UpdateBeneficiary(SavePaymentViewModel vm)
+        {
+            // Obtener todas las cuentas
+            var allAccounts = await _bankAccountService.GetAllViewModel();
 
+            // Obtener la cuenta de destino (beneficiario) seleccionada en el ViewModel
+            var destinationAccount = allAccounts.FirstOrDefault(a => a.AccountNumber == vm.DestinationAccount); // Asegúrate de que el ViewModel tiene una propiedad `BeneficiaryAccount`
+            if (destinationAccount == null)
+            {
+                throw new InvalidOperationException("La cuenta destino no existe.");
+            }
 
+            // Obtener la cuenta de origen seleccionada en el ViewModel
+            var originAccount = allAccounts.FirstOrDefault(a => a.AccountNumber == vm.SourceAccount);
+            if (originAccount == null)
+            {
+                throw new InvalidOperationException("La cuenta de origen seleccionada no es válida.");
+            }
+
+            // Validar que la cuenta de origen tiene suficiente saldo
+            if (originAccount.CurrentBalance < vm.AmountPaid)
+            {
+                throw new InvalidOperationException("Saldo insuficiente en la cuenta de origen.");
+            }
+
+            // Realizar la transacción (descontar de la cuenta de origen y agregar a la cuenta de destino)
+            originAccount.CurrentBalance -= vm.AmountPaid;
+            destinationAccount.CurrentBalance += vm.AmountPaid;
+
+            // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
+            var saveOriginAccount = new SaveBankAccountViewModel
+            {
+                Id = originAccount.Id,
+                AccountType = originAccount.AccountType,
+                AccountNumber = originAccount.AccountNumber,
+                InitialAmount = originAccount.InitialAmount,
+                UserId = originAccount.UserId,
+                CurrentBalance = originAccount.CurrentBalance,
+                CreditLimit = originAccount.CreditLimit,
+                LoanAmount = originAccount.LoanAmount
+            };
+
+            var saveDestinationAccount = new SaveBankAccountViewModel
+            {
+                Id = destinationAccount.Id,
+                AccountType = destinationAccount.AccountType,
+                AccountNumber = destinationAccount.AccountNumber,
+                InitialAmount = destinationAccount.InitialAmount,
+                UserId = destinationAccount.UserId,
+                CurrentBalance = destinationAccount.CurrentBalance,
+                CreditLimit = destinationAccount.CreditLimit,
+                LoanAmount = destinationAccount.LoanAmount
+            };
+
+            // Actualizar las cuentas en la base de datos
+            await _bankAccountService.Update(saveOriginAccount, saveOriginAccount.Id);
+            await _bankAccountService.Update(saveDestinationAccount, saveDestinationAccount.Id);
+
+            // Registrar el pago en la base de datos
+            var payment = new SavePaymentViewModel
+            {
+                DestinationAccount = vm.DestinationAccount,
+                AmountPaid = vm.AmountPaid,
+                SourceAccount = vm.SourceAccount,
+                TransactionType = vm.TransactionType,
+                PaymentDate = DateTime.Now
+            };
+
+            await base.Add(payment);
+
+            return payment;
+        }
 
 
 

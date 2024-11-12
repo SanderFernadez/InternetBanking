@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel.DataAnnotations;
 using InternetBanking.Core.Application.Enums;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
@@ -30,6 +29,7 @@ namespace InternetBanking.Core.Application.ViewModels.Payments
         public TransferType TransactionType { get; set; }
 
         public ICollection<BankAccountViewModel> accounts { get; set; } = new List<BankAccountViewModel>();
-        public ICollection<SaveBeneficiaryViewModel> beneficiary { get; set; } = new List<SaveBeneficiaryViewModel>();
+
+        public ICollection<BeneficiaryViewModel> beneficiary { get; set; } = new List<BeneficiaryViewModel>();
     }
 }

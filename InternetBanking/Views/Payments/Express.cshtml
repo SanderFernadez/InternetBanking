@@ -1,4 +1,5 @@
 ﻿@using InternetBanking.Core.Application.ViewModels.Payments
+@using InternetBanking.Core.Domain.Enums
 @model SavePaymentViewModel
 
 
@@ -44,9 +45,24 @@
                         <option value="" disabled selected>Seleccione una cuenta</option>
                         @foreach (var account in Model.accounts)
                         {
-                            <option value="@account.Id">
-                                @account.AccountNumber - @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
-                            </option>
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.Id">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+
+                            else if (account.AccountType == AccountType.Loan)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                <option value="@account.Id">
+                                    @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
                         }
                     </select>
                     <span asp-validation-for="SourceAccount" class="text-danger"></span>

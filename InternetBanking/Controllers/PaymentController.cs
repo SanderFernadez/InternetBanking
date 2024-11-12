@@ -11,14 +11,16 @@ public class PaymentsController : Controller
 
     private readonly IBankAccountService _bankAccountService;
     private readonly IPaymentService _paymentService;
+    private readonly IBeneficiaryService _beneficiariesService;
    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthenticationResponse _userViewModel;
 
 
-    public PaymentsController(IBankAccountService bankAccountService, IPaymentService paymentService)
+    public PaymentsController(IBeneficiaryService beneficiariesService, IBankAccountService bankAccountService, IPaymentService paymentService)
     {
         _bankAccountService = bankAccountService;
         _paymentService = paymentService;
+        _beneficiariesService = beneficiariesService;
        
 
     }
@@ -115,4 +117,83 @@ public class PaymentsController : Controller
         // Redirigir a la misma vista para confirmar la operación exitosa
         return RedirectToAction("CreditCard");
     }
+
+
+
+    public async Task<IActionResult> Loan()
+    {
+        var model = await _bankAccountService.GetAccounts();
+        SavePaymentViewModel vm = new()
+        {
+            accounts = model
+        };
+
+        return View(vm);
+    }
+
+
+
+
+    [HttpPost]
+    public async Task<IActionResult> Loan(SavePaymentViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            
+           
+            return RedirectToAction("Loan");  
+        }
+
+        var model = await _paymentService.UpdateCreditAccounts(vm);
+
+
+        if (model == null)
+        {
+            TempData["ErrorMessage"] = "No tiene suficiente dinero para realizar esta transacción.";
+            return RedirectToAction("Loan");
+
+        }
+
+        // Redirigir a la misma vista para confirmar la operación exitosa
+        return RedirectToAction("Loan");
+    }
+
+
+    public async Task<IActionResult> Beneficiaries()
+    {
+        var model = await _bankAccountService.GetAccounts();
+        var beneficiaries = await _beneficiariesService.LoadBeneficiary();
+        SavePaymentViewModel vm = new()
+        {
+            accounts = model,
+            beneficiary = beneficiaries
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Beneficiaries(SavePaymentViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+
+
+            return RedirectToAction("Beneficiaries");
+        }
+
+        var model = await _paymentService.UpdateBeneficiary(vm);
+
+
+        if (model == null)
+        {
+            TempData["ErrorMessage"] = "No tiene suficiente dinero para realizar esta transacción.";
+            return RedirectToAction("Beneficiaries");
+
+        }
+
+        // Redirigir a la misma vista para confirmar la operación exitosa
+        return RedirectToAction("Beneficiaries");
+    }
+
 }
