@@ -55,7 +55,7 @@ namespace InternetBanking.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.Account)
                 .WithMany(a => a.Transactions)
-                .HasForeignKey(t => t.AccountId)
+                .HasForeignKey(t => t.DestinationAccount)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

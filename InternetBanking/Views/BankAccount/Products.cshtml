@@ -7,10 +7,7 @@
 }
 
 
-@if (Model.FirstOrDefault()?.UserId == null)
-{
-    <div class="alert alert-warning">UserId no está disponible en Model</div>
-}
+
 
 
 
@@ -115,7 +112,7 @@
                     {
                         <span class="text-muted">No se puede eliminar</span>
                     }
-                    else if (account.AccountType == AccountType.Credit && account.CreditLimit != 0)
+                    else if (account.AccountType == AccountType.Credit && account.LoanAmount != 0)
                     {
                         <span class="text-muted">No se puede eliminar: deuda pendiente</span>
                     }

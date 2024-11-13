@@ -172,7 +172,7 @@ namespace WebApp.InternetBanking.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dashboard()
         {
-            var numberproducts = await _trasnferService.GetDatesOfSystem(); 
+            var numberproducts = await _trasnferService.GetSystemReport(); 
             return View("Dashboard", numberproducts);
         }
 

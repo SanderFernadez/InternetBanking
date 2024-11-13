@@ -154,11 +154,11 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DestinationAccount")
+                        .HasColumnType("int");
 
                     b.Property<int>("SourceAccount")
                         .HasColumnType("int");
@@ -171,7 +171,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("DestinationAccount");
 
                     b.ToTable("Transactions", (string)null);
                 });
@@ -228,7 +228,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("InternetBanking.Core.Domain.Entities.Account", "Account")
                         .WithMany("Transactions")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("DestinationAccount")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

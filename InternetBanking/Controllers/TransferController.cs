@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using InternetBanking.Core.Application.ViewModels.Transfers;
-using System.Collections.Generic;
-using System.Linq;
+
 
 public class TransferController : Controller
 {

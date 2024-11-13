@@ -8,9 +8,18 @@ namespace InternetBanking.Core.Application.Dtos.SystemDates
 {
     public class BankAccountResponse
     {
-        public ICollection<AuthenticationResponse>? Users { get; set; }
-        public ICollection<BankAccountViewModel>? accounts { get; set; }
-        public ICollection<PaymentViewModel>? Payments { get; set; }
-        public ICollection<TransactionViewModel>? Transactions { get; set; }
+        //public ICollection<AuthenticationResponse>? TotalUsers { get; set; }
+        //public ICollection<BankAccountViewModel>? TotalAccounts { get; set; }
+        //public ICollection<PaymentViewModel>? TotalPayments { get; set; }
+        //public ICollection<TransactionViewModel>? TotalTransactions { get; set; } 
+        
+        
+        public int? TotalUsers { get; set; }
+        public int? TotalAccounts { get; set; }
+        public int? TotalPayments { get; set; }
+        public int? TotalTransactions { get; set; }
+        public int? DailyTransactionsCount { get; set; }
+        public int? DailyPaymentsCount { get; set; }
+        public int? InactiveUsersCount { get; set; }
     }
 }

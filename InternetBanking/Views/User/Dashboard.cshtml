@@ -1,5 +1,5 @@
 ﻿@using InternetBanking.Core.Application.Dtos.SystemDates
-@model List<BankAccountResponse>
+@model BankAccountResponse
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -7,7 +7,7 @@
 
 <div class="container mt-4">
     <div class="dashboard">
-        @if (Model != null && Model.Any())
+        @if (Model != null)
         {
             <!-- Tarjeta de Resumen de Transacciones -->
             <div class="card">
@@ -15,22 +15,9 @@
                     <i class="fas fa-exchange-alt"></i> Resumen de Transacciones
                 </div>
                 <div class="card-body">
-                    @{
-                        int alltransactions = 0;
-                        int dailytransactions = 0;
-
-                        var firstItem = Model.First();
-                        foreach (var transaction in firstItem.Transactions)
-                        {
-                            alltransactions++;
-                            if (transaction.TransactionDate.Date == DateTime.Now.Date)
-                            {
-                                dailytransactions++;
-                            }
-                        }
-                    }
-                    <h2>@alltransactions</h2>
-                    <p>Transacciones de Hoy: <span>@dailytransactions</span></p>
+                    <h2>@Model.TotalTransactions</h2>
+                    <p>Transacciones totales en el sistema</p>
+                    <p>Transacciones de Hoy: <span>@Model.DailyTransactionsCount</span></p>
                 </div>
                 <div class="card-footer text-muted">
                     Última actualización: @DateTime.Now.ToString("g")
@@ -43,23 +30,9 @@
                     <i class="fas fa-dollar-sign"></i> Resumen de Pagos
                 </div>
                 <div class="card-body">
-                    @{
-                        int allpayments = 0;
-                        int dailypayments = 0;
-
-                        var firstItem2 = Model.First();
-
-                        foreach (var payment in firstItem2.Payments)
-                        {
-                            allpayments++;
-                            if (payment.PaymentDate.Date == DateTime.Now.Date)
-                            {
-                                dailypayments++;
-                            }
-                        }
-                    }
-                    <h2>@allpayments</h2>
-                    <p>Pagos de Hoy: <span>@dailypayments</span></p>
+                    <h2>@Model.TotalPayments</h2>
+                    <p>Pagos totales en el sistema</p>
+                    <p>Pagos de Hoy: <span>@Model.DailyPaymentsCount</span></p>
                 </div>
                 <div class="card-footer text-muted">
                     Última actualización: @DateTime.Now.ToString("g")
@@ -72,25 +45,9 @@
                     <i class="fas fa-users"></i> Resumen de Usuarios
                 </div>
                 <div class="card-body">
-                    @{
-                        int activeUsersCount = 0;
-                        int inactiveUsersCount = 0;
-
-                        var firstItem3 = Model.First();
-                        foreach (var user in firstItem3.Users)
-                        {
-                            if (user.IsVerified)
-                            {
-                                activeUsersCount++;
-                            }
-                            else
-                            {
-                                inactiveUsersCount++;
-                            }
-                        }
-                    }
-                    <h2>@activeUsersCount</h2>
-                    <p>Usuarios Inactivos: <span>@inactiveUsersCount</span></p>
+                    <h2>@Model.TotalUsers</h2>
+                    <p>Usuarios totales en el sistema</p>
+                    <p>Usuarios Inactivos: <span>@Model.InactiveUsersCount</span></p>
                 </div>
                 <div class="card-footer text-muted">
                     Última actualización: @DateTime.Now.ToString("g")
@@ -103,17 +60,13 @@
                     <i class="fas fa-box"></i> Productos asignados a usuarios
                 </div>
                 <div class="card-body">
-                    @{
-                        int allproducts = Model.Count; // Contar todos los productos en la lista Model
-                    }
-                    <h2>@allproducts</h2>
+                    <h2>@Model.TotalAccounts</h2>
                     <p>Este es el número total de productos asignados a los usuarios.</p>
                 </div>
                 <div class="card-footer text-muted">
                     Última actualización: @DateTime.Now.ToString("g")
                 </div>
             </div>
-
         }
         else
         {

@@ -49,7 +49,7 @@
                             if (account.AccountType == AccountType.Credit)
                             {
                                 decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
-                                <option value="@account.Id">
+                                <option value="@account.AccountNumber">
                                     @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                                 </option>
                             }
@@ -60,7 +60,7 @@
                             }
                             else
                             {
-                                <option value="@account.Id">
+                                <option value="@account.AccountNumber">
                                     @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                                 </option>
                             }

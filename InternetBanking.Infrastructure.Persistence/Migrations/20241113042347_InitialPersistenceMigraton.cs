@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InternetBanking.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPersistenceMigration : Migration
+    public partial class InitialPersistenceMigraton : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -98,7 +98,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    DestinationAccount = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TransactionType = table.Column<int>(type: "int", nullable: false),
                     SourceAccount = table.Column<int>(type: "int", nullable: false),
@@ -108,8 +108,8 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Accounts_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_Transactions_Accounts_DestinationAccount",
+                        column: x => x.DestinationAccount,
                         principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -154,9 +154,9 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                 column: "DestinationAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_AccountId",
+                name: "IX_Transactions_DestinationAccount",
                 table: "Transactions",
-                column: "AccountId");
+                column: "DestinationAccount");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transfers_AccountSourceId",

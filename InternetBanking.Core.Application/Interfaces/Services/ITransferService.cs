@@ -9,6 +9,6 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 {
     public interface ITransferService: IGenericService<SaveTransferViewModel, TransferViewModel, Transfer>
     {
-        Task<List<BankAccountResponse>> GetDatesOfSystem();
+        Task<BankAccountResponse> GetSystemReport();
     }
 }

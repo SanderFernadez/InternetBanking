@@ -24,7 +24,7 @@
                 <!-- Tarjeta de Crédito (Cuenta Destino) -->
                 <div class="mb-4">
                     <label asp-for="DestinationAccount" class="form-label font-weight-bold">Tarjeta de Crédito</label>
-                    <select asp-for="DestinationAccount" asp-items="@(new SelectList(Model.accounts.Where(a => a.AccountType == AccountType.Credit), "AccountNumber", "AccountNumber"))" class="form-select form-select-lg" required>
+                    <select asp-for="DestinationAccount" asp-items="@(new SelectList(Model.accounts.Where(a => a.AccountType == AccountType.Credit), "AccountNumber", "AccountNumber"))" class="form-select form-select-lg" required onchange="filterSourceAccounts()">
                         <option value="" disabled selected>Seleccione la tarjeta de crédito</option>
                     </select>
                     <span asp-validation-for="DestinationAccount" class="text-danger"></span>
@@ -33,25 +33,24 @@
                 <!-- Cuenta de Origen -->
                 <div class="mb-4">
                     <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
-                    <select asp-for="SourceAccount" class="form-select form-select-lg" required>
+                    <select asp-for="SourceAccount" class="form-select form-select-lg" required id="sourceAccountSelect">
                         <option value="" disabled selected>Seleccione una cuenta de origen</option>
                         @foreach (var account in Model.accounts)
                         {
-                            if(account.AccountType == AccountType.Credit)
+                            if (account.AccountType == AccountType.Credit)
                             {
                                 decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
-                                <option value="@account.Id">
+                                <option value="@account.Id" data-account-number="@account.AccountNumber">
                                     @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                                 </option>
                             }
-
                             else if (account.AccountType == AccountType.Loan)
                             {
-                               continue; 
+                                continue;
                             }
                             else
                             {
-                                <option value="@account.Id">
+                                <option value="@account.Id" data-account-number="@account.AccountNumber">
                                     @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                                 </option>
                             }
@@ -59,6 +58,7 @@
                     </select>
                     <span asp-validation-for="SourceAccount" class="text-danger"></span>
                 </div>
+
 
                 <!-- Monto a Pagar -->
                 <div class="mb-4">
@@ -119,6 +119,22 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+
+
+        function filterSourceAccounts() {
+            const destinationAccount = document.querySelector('select[name="DestinationAccount"]').value;
+            const sourceAccountOptions = document.querySelectorAll('#sourceAccountSelect option');
+
+            // Itera sobre las opciones y oculta la cuenta de origen si coincide con la cuenta destino
+            sourceAccountOptions.forEach(option => {
+                if (option.getAttribute('data-account-number') === destinationAccount) {
+                    option.style.display = 'none';
+                } else {
+                    option.style.display = 'block';
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.querySelector('input[name="AmountPaid"]');
             const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');

@@ -145,15 +145,33 @@ namespace InternetBanking.Core.Application.Services
                 throw new InvalidOperationException("La cuenta de origen seleccionada no es válida.");
             }
 
-            // Validar que la cuenta de origen tiene suficiente saldo
-            if (originAccount.CurrentBalance < vm.AmountPaid)
+            // Validar que la cuenta de origen tiene suficiente saldo o crédito
+            if (originAccount.AccountType == AccountType.Credit)
             {
-                throw new InvalidOperationException("Saldo insuficiente en la cuenta de origen.");
+                decimal creditValue = (originAccount.CreditLimit ?? 0) - (originAccount.LoanAmount ?? 0);
+                if (creditValue < vm.AmountPaid)
+                {
+                    return null; // Retornar null si no hay suficiente crédito disponible
+                }
+
+                // Actualizar el saldo de la cuenta de crédito
+                originAccount.LoanAmount += vm.AmountPaid;
             }
 
-            // Realizar la transacción (descontar de la cuenta de origen y agregar a la cuenta de destino)
-            originAccount.CurrentBalance -= vm.AmountPaid;
+            else if (originAccount.CurrentBalance < vm.AmountPaid)
+            {
+                return null; // Retornar null si el saldo de la cuenta de origen es insuficiente
+            }
+
+
+            else
+            {
+                originAccount.CurrentBalance -= vm.AmountPaid;
+            }
+
+            // Actualizar saldo en la cuenta de destino
             destinationAccount.CurrentBalance += vm.AmountPaid;
+
 
             // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
             var saveOriginAccount = new SaveBankAccountViewModel
@@ -201,7 +219,6 @@ namespace InternetBanking.Core.Application.Services
 
 
 
-
         public async Task<SavePaymentViewModel> UpdateAccounts(SavePaymentViewModel vm)
         {
             // Obtener todas las cuentas para validar la cuenta de destino
@@ -214,25 +231,39 @@ namespace InternetBanking.Core.Application.Services
                 throw new InvalidOperationException("La cuenta destino no existe.");
             }
 
-            // Obtener la cuenta de origen seleccionada en el ViewModel (desde la lista de cuentas del usuario)
+            // Obtener la cuenta de origen seleccionada en el ViewModel
             var originAccount = vm.accounts.FirstOrDefault(a => a.Id == vm.SourceAccount);
             if (originAccount == null)
             {
                 throw new InvalidOperationException("La cuenta de origen seleccionada no es válida.");
             }
 
-            // Validar que la cuenta de origen tiene suficiente saldo
-            if (originAccount.CurrentBalance < vm.AmountPaid)
+            // Validar que la cuenta de origen tiene suficiente saldo o crédito
+            if (originAccount.AccountType == AccountType.Credit)
             {
-                return null;
+                decimal creditValue = (originAccount.CreditLimit ?? 0) - (originAccount.LoanAmount ?? 0);
+                if (creditValue < vm.AmountPaid)
+                {
+                    return null; // Retornar null si no hay suficiente crédito disponible
+                }
+
+                // Actualizar el saldo de la cuenta de crédito
+                originAccount.LoanAmount += vm.AmountPaid;
+            }
+            else if (originAccount.CurrentBalance < vm.AmountPaid)
+            {
+                return null; // Retornar null si el saldo de la cuenta de origen es insuficiente
+            }
+            else
+            {
+                originAccount.CurrentBalance -= vm.AmountPaid;
             }
 
-            // Realizar la transacción si todas las validaciones pasaron
-            originAccount.CurrentBalance -= vm.AmountPaid;
+            // Actualizar saldo en la cuenta de destino
             destinationAccount.CurrentBalance += vm.AmountPaid;
 
-            // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
-            SaveBankAccountViewModel saveoriginAccount = new SaveBankAccountViewModel()
+            // Crear modelos para actualizar en la base de datos
+            var saveOriginAccount = new SaveBankAccountViewModel
             {
                 Id = originAccount.Id,
                 AccountType = originAccount.AccountType,
@@ -244,9 +275,9 @@ namespace InternetBanking.Core.Application.Services
                 LoanAmount = originAccount.LoanAmount,
             };
 
-            SaveBankAccountViewModel savedestinationAccount = new SaveBankAccountViewModel()
+            var saveDestinationAccount = new SaveBankAccountViewModel
             {
-                Id = destinationAccount.Id, // Asegurarse de incluir el Id aquí
+                Id = destinationAccount.Id,
                 AccountType = destinationAccount.AccountType,
                 AccountNumber = destinationAccount.AccountNumber,
                 InitialAmount = destinationAccount.InitialAmount,
@@ -259,21 +290,19 @@ namespace InternetBanking.Core.Application.Services
             // Actualizar las cuentas en la base de datos
             try
             {
-                await _bankAccountService.Update(saveoriginAccount, saveoriginAccount.Id);
-                await _bankAccountService.Update(savedestinationAccount, savedestinationAccount.Id);
+                await _bankAccountService.Update(saveOriginAccount, saveOriginAccount.Id);
+                await _bankAccountService.Update(saveDestinationAccount, saveDestinationAccount.Id);
             }
             catch (Exception ex)
             {
-                // Log o ver detalles del error
+                // Manejo de errores en la actualización
                 Console.WriteLine($"Error actualizando cuentas: {ex.Message}");
+                throw; // Lanza la excepción para manejarla en niveles superiores
             }
 
-
             // Registrar el pago en la base de datos
-
-            SavePaymentViewModel payment = new()
+            var payment = new SavePaymentViewModel
             {
-                
                 DestinationAccount = vm.DestinationAccount,
                 AmountPaid = vm.AmountPaid,
                 SourceAccount = vm.SourceAccount,
@@ -284,10 +313,10 @@ namespace InternetBanking.Core.Application.Services
             await base.Add(payment);
 
             return payment;
-
         }
 
-       
+
+
 
 
 
