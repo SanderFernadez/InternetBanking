@@ -43,7 +43,7 @@
                         <option value="" disabled selected>Seleccione una cuenta de destino</option>
                         @foreach (var account in Model.accounts)
                         {
-                            <option value="@account.Id">
+                            <option value="@account.AccountNumber">
                                 @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                             </option>
                         }
@@ -61,6 +61,7 @@
                 <!-- Botón para abrir el modal de confirmación -->
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Realizar Transferencia</button>
+
                 </div>
             </form>
         </div>
@@ -92,20 +93,11 @@
 @section Scripts {
     <!-- Scripts de Validación de ASP.NET Core -->
     <partial name="_ValidationScriptsPartial" />
-
-    <!-- Validación y Confirmación de Transferencia -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.querySelector('input[name="Amount"]');
             const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
             const destinationAccountSelect = document.querySelector('select[name="DestinationAccount"]');
-
-            amountInput.addEventListener("input", function () {
-                if (this.value < 0) {
-                    this.value = "";  // Limpia el campo si el valor es negativo
-                    alert("El monto debe ser un valor positivo.");
-                }
-            });
 
             function showAlert(message) {
                 alert(message);
@@ -114,7 +106,7 @@
             window.showConfirmationModal = function () {
                 const sourceAccount = sourceAccountSelect.value;
                 const destinationAccount = destinationAccountSelect.value;
-                const amount = amountInput.value;
+                const amount = parseFloat(amountInput.value);
 
                 if (!sourceAccount) {
                     showAlert("Por favor, seleccione una cuenta de origen.");
@@ -133,24 +125,32 @@
                     return;
                 }
 
-                // Validar saldo en la cuenta de origen
-                const selectedSourceAccount = Model.accounts.find(acc => acc.Id === sourceAccount);
-                if (selectedSourceAccount && parseFloat(amount) > selectedSourceAccount.CurrentBalance) {
-                    showAlert("Saldo insuficiente en la cuenta de origen.");
-                    return;
-                }
+                // Llamada al controlador para obtener información de la cuenta destino
+                fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mostrar la información de confirmación en el modal
+                            document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
+                            document.getElementById("sourceAccountInfo").innerText = sourceAccountSelect.selectedOptions[0].text;
+                            document.getElementById("destinationAccountInfo").innerText = destinationAccountSelect.selectedOptions[0].text;
+                            document.getElementById("confirmationAmount").innerText = amount.toLocaleString("es-DO", { style: "currency", currency: "DOP" });
 
-                // Mostrar información de confirmación
-                document.getElementById("sourceAccountInfo").innerText = selectedSourceAccount.AccountNumber;
-                const selectedDestinationAccount = Model.accounts.find(acc => acc.Id === destinationAccount);
-                document.getElementById("destinationAccountInfo").innerText = selectedDestinationAccount.AccountNumber;
-                document.getElementById("confirmationAmount").innerText = amount;
-                document.getElementById("confirmationModal").style.display = "block";
-            }
+                            // Mostrar el modal de confirmación
+                            document.getElementById("confirmationModal").style.display = "block";
+                        } else {
+                            showAlert("Cuenta destino no encontrada.");
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            };
 
             window.confirmTransfer = function () {
                 document.getElementById("transferForm").submit();
-            }
+            };
         });
     </script>
+
+
+
 }
