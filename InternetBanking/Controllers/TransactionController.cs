@@ -28,7 +28,12 @@ namespace WebApp.InternetBanking.Controllers
             };
 
             return View(vm);
-        }
+
+        } 
+        
+        
+        
+     
 
        [HttpPost]
        public async Task<IActionResult> Transaction(SaveTransactionViewModel vm)
@@ -37,7 +42,7 @@ namespace WebApp.InternetBanking.Controllers
             if (!ModelState.IsValid)
             {
                 vm.accounts = await _bankAccountService.GetAccounts();
-                return View(vm);
+                return RedirectToAction("Index");
             }
 
             var model = await _transactionService.UpdateAccounts(vm);
@@ -50,5 +55,10 @@ namespace WebApp.InternetBanking.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+
+        
+
     }
 }

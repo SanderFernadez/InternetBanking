@@ -20,15 +20,15 @@
         <div class="modal-body">
             <!-- Formulario de Transferencia -->
             <form id="transferForm" method="post" action="@Url.Action("Transaction", "Transaction")">
-
                 <!-- Cuenta de Origen -->
                 <div class="mb-4">
                     <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
-                    <select asp-for="SourceAccount" class="form-select form-select-lg" required>
+                    <select asp-for="SourceAccount" id="sourceAccountSelect" class="form-select form-select-lg" required>
                         <option value="" disabled selected>Seleccione una cuenta de origen</option>
                         @foreach (var account in Model.accounts)
                         {
-                            <option value="@account.Id">
+                            if (account.AccountType == AccountType.Loan) continue;
+                            <option value="@account.Id" data-account-id="@account.Id">
                                 @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                             </option>
                         }
@@ -39,17 +39,19 @@
                 <!-- Cuenta de Destino -->
                 <div class="mb-4">
                     <label asp-for="DestinationAccount" class="form-label font-weight-bold">Cuenta de Destino</label>
-                    <select asp-for="DestinationAccount" class="form-select form-select-lg" required>
+                    <select asp-for="DestinationAccount" id="destinationAccountSelect" class="form-select form-select-lg" required>
                         <option value="" disabled selected>Seleccione una cuenta de destino</option>
                         @foreach (var account in Model.accounts)
                         {
-                            <option value="@account.AccountNumber">
+                            if ( account.AccountType == AccountType.Loan) continue;
+                            <option value="@account.AccountNumber" data-account-id="@account.Id">
                                 @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                             </option>
                         }
                     </select>
                     <span asp-validation-for="DestinationAccount" class="text-danger"></span>
                 </div>
+
 
                 <!-- Monto a Transferir -->
                 <div class="mb-4">
@@ -58,99 +60,152 @@
                     <span asp-validation-for="Amount" class="text-danger"></span>
                 </div>
 
+                @{
+                    int i = 0;
+                }
+                <!-- Campos ocultos para cada cuenta en la lista -->
+                @foreach (var account in Model.accounts)
+                {
+                    <input type="hidden" name="Accounts[@i].Id" value="@account.Id" />
+                    <input type="hidden" name="Accounts[@i].AccountNumber" value="@account.AccountNumber" />
+                    <input type="hidden" name="Accounts[@i].CurrentBalance" value="@account.CurrentBalance" />
+                    <input type="hidden" name="Accounts[@i].UserId" value="@account.UserId" />
+                    <input type="hidden" name="Accounts[@i].AccountType" value="@account.AccountType" />
+                    <input type="hidden" name="Accounts[@i].InitialAmount" value="@account.InitialAmount" />
+                    <input type="hidden" name="Accounts[@i].CreditLimit" value="@account.CreditLimit" />
+                    <input type="hidden" name="Accounts[@i].LoanAmount" value="@account.LoanAmount" />
+                    i++;
+                }
+
                 <!-- Botón para abrir el modal de confirmación -->
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Realizar Transferencia</button>
-
                 </div>
             </form>
-        </div>
-    </div>
-</div>
 
-<!-- Modal de Confirmación -->
-<div id="confirmationModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmación de Transferencia</h5>
-                <button type="button" class="close" onclick="document.getElementById('confirmationModal').style.display='none'">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>¿Deseas confirmar la transferencia entre cuentas?</p>
-                <p><strong>Cuenta Origen:</strong> <span id="sourceAccountInfo"></span></p>
-                <p><strong>Cuenta Destino:</strong> <span id="destinationAccountInfo"></span></p>
-                <p><strong>Monto:</strong> <span id="confirmationAmount"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('confirmationModal').style.display='none'">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmTransfer()">Confirmar Transferencia</button>
+            <!-- Modal de Confirmación -->
+            <div id="confirmationModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmación de Transferencia</h5>
+                            <button type="button" class="close" onclick="document.getElementById('confirmationModal').style.display='none'">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Deseas confirmar la transferencia entre cuentas?</p>
+                            <p><strong>Cuenta Origen:</strong> <span id="sourceAccountInfo"></span></p>
+                            <p><strong>Cuenta Destino:</strong> <span id="destinationAccountInfo"></span></p>
+                            <p><strong>Monto:</strong> <span id="confirmationAmount"></span></p>
+                            <p><strong>Nombre del Destinatario:</strong> <span id="ownerName"></span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('confirmationModal').style.display='none'">Cancelar</button>
+                            <button type="button" class="btn btn-primary" onclick="confirmTransfer()">Confirmar Transferencia</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- Scripts de Validación de ASP.NET Core -->
-    <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.querySelector('input[name="Amount"]');
             const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
             const destinationAccountSelect = document.querySelector('select[name="DestinationAccount"]');
 
+            amountInput.addEventListener("input", function () {
+                if (this.value < 0) {
+                    this.value = "";
+                    alert("El monto debe ser un valor positivo.");
+                }
+            });
+
             function showAlert(message) {
                 alert(message);
             }
 
             window.showConfirmationModal = function () {
-                const sourceAccount = sourceAccountSelect.value;
                 const destinationAccount = destinationAccountSelect.value;
-                const amount = parseFloat(amountInput.value);
+                const amountPaid = amountInput.value;
 
-                if (!sourceAccount) {
-                    showAlert("Por favor, seleccione una cuenta de origen.");
-                    return;
-                }
                 if (!destinationAccount) {
                     showAlert("Por favor, seleccione una cuenta de destino.");
                     return;
                 }
-                if (sourceAccount === destinationAccount) {
-                    showAlert("La cuenta de origen y destino no pueden ser la misma.");
+                if (!sourceAccountSelect.value) {
+                    showAlert("Por favor, seleccione una cuenta de origen.");
                     return;
                 }
-                if (!amount || amount <= 0) {
+                if (!amountPaid || amountPaid <= 0) {
                     showAlert("Por favor, ingrese un monto válido.");
                     return;
                 }
 
-                // Llamada al controlador para obtener información de la cuenta destino
                 fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Mostrar la información de confirmación en el modal
                             document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
                             document.getElementById("sourceAccountInfo").innerText = sourceAccountSelect.selectedOptions[0].text;
                             document.getElementById("destinationAccountInfo").innerText = destinationAccountSelect.selectedOptions[0].text;
-                            document.getElementById("confirmationAmount").innerText = amount.toLocaleString("es-DO", { style: "currency", currency: "DOP" });
-
-                            // Mostrar el modal de confirmación
+                            document.getElementById("confirmationAmount").innerText = parseFloat(amountPaid).toLocaleString("es-DO", { style: "currency", currency: "DOP" });
                             document.getElementById("confirmationModal").style.display = "block";
                         } else {
                             showAlert("Cuenta destino no encontrada.");
                         }
                     })
                     .catch(error => console.error('Error:', error));
-            };
+            }
 
             window.confirmTransfer = function () {
                 document.getElementById("transferForm").submit();
-            };
+            }
         });
+
+
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const sourceAccountSelect = document.getElementById("sourceAccountSelect");
+                const destinationAccountSelect = document.getElementById("destinationAccountSelect");
+
+                function filterAccounts() {
+                    const selectedSource = sourceAccountSelect.value;
+                    const selectedDestination = destinationAccountSelect.value;
+
+                    // Mostrar todas las opciones en ambos selectores primero para eliminar cualquier filtro anterior
+                    Array.from(sourceAccountSelect.options).forEach(option => option.hidden = false);
+                    Array.from(destinationAccountSelect.options).forEach(option => option.hidden = false);
+
+                    // Si hay una cuenta seleccionada en "Cuenta de Origen", ocultarla en "Cuenta de Destino"
+                    if (selectedSource) {
+                        Array.from(destinationAccountSelect.options).forEach(option => {
+                            if (option.getAttribute("data-account-id") === selectedSource) {
+                                option.hidden = true;
+                            }
+                        });
+                    }
+
+                    // Si hay una cuenta seleccionada en "Cuenta de Destino", ocultarla en "Cuenta de Origen"
+                    if (selectedDestination) {
+                        Array.from(sourceAccountSelect.options).forEach(option => {
+                            if (option.getAttribute("data-account-id") === selectedDestination) {
+                                option.hidden = true;
+                            }
+                        });
+                    }
+                }
+
+                // Escuchar los cambios en ambos selectores
+                sourceAccountSelect.addEventListener("change", filterAccounts);
+                destinationAccountSelect.addEventListener("change", filterAccounts);
+
+                // Llamar a la función al cargar para aplicar los filtros si ya hay valores seleccionados
+                filterAccounts();
+            });
+    
+
     </script>
-
-
-
 }

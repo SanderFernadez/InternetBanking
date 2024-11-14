@@ -109,7 +109,7 @@ public class PaymentsController : Controller
 
         if (model == null)
         {
-            TempData["ErrorMessage"] = "No tiene suficiente dinero para realizar esta transacción.";
+            TempData["ErrorMessage"] = "No dispone de suficiente dinero para realizar esta transacción.";
             return RedirectToAction("CreditCard");
 
         }

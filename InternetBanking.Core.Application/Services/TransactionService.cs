@@ -49,6 +49,12 @@ namespace InternetBanking.Core.Application.Services
                 throw new InvalidOperationException("La cuenta de origen seleccionada no es válida.");
             }
 
+            // Si la cuenta de origen es igual a la cuenta destino, transferir 0 pesos
+            if (originAccount.AccountNumber == vm.DestinationAccount)
+            {
+                vm.Amount = 0;
+            }
+
             // Validar que la cuenta de origen tiene suficiente saldo o crédito
             if (originAccount.AccountType == AccountType.Credit)
             {
@@ -114,7 +120,7 @@ namespace InternetBanking.Core.Application.Services
             // Registrar el pago en la base de datos
             var transaction = new SaveTransactionViewModel
             {
-                DestinationAccount = vm.DestinationAccount,
+                DestinationAccount = destinationAccount.Id,
                 Amount = vm.Amount,
                 SourceAccount = vm.SourceAccount,
                 TransactionType = vm.TransactionType,

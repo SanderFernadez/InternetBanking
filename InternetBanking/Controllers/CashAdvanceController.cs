@@ -1,79 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Advances;
-using System.Collections.Generic;
-using System.Linq;
-using InternetBanking.Core.Application.ViewModels.Advances;
+using InternetBanking.Core.Application.ViewModels.Transactions;
+using Microsoft.AspNetCore.Mvc;
 
 public class CashAdvanceController : Controller
 {
-    // Simulación de datos en memoria para tarjetas de crédito y cuentas de ahorro
-    private static List<AdvanceViewModel> advances = new List<AdvanceViewModel>();
 
-    private static List<AdvanceViewModel> creditCards = new List<AdvanceViewModel>
+    private readonly IAdvanceService _advanceService;
+    private readonly IBankAccountService _bankAccountService;
+
+
+    public CashAdvanceController (IAdvanceService advanceService, IBankAccountService bankAccountService)
     {
-        new AdvanceViewModel { AccountCreditId = 1, Amount = 500 },
-        new AdvanceViewModel { AccountCreditId = 2, Amount = 1000 }
-    };
-
-    private static List<AdvanceViewModel> savingAccounts = new List<AdvanceViewModel>
-    {
-        new AdvanceViewModel { DestinationAccountId = 1},
-        new AdvanceViewModel { DestinationAccountId = 2}
-    };
-
-    public IActionResult Index()
-    {
-        var model = new AdvanceViewModel();
-        ViewBag.CreditCards = creditCards;
-        ViewBag.SavingAccounts = savingAccounts;
-
-        return View(model);
+        _advanceService = advanceService;
+        _bankAccountService = bankAccountService;
     }
 
-    [HttpPost]
-    public IActionResult RealizarAvance(AdvanceViewModel model)
+
+
+    public async Task<IActionResult> Index()
     {
-        // Validar los datos
-        if (model.Amount <= 0 || model.AccountCreditId == 0 || model.DestinationAccountId == 0)
+        var model = await _bankAccountService.GetAccounts();
+        SaveAdvanceViewModel vm = new()
         {
-            TempData["Error"] = "Todos los campos son requeridos.";
+            accounts = model
+        };
+
+        return View(vm);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> CashAdvance(SaveAdvanceViewModel vm)
+    {
+
+        if (!ModelState.IsValid)
+        {
+            vm.accounts = await _bankAccountService.GetAccounts();
+            return View(vm);
+        }
+
+        var model = await _advanceService.CashAdvance(vm);
+
+        if (model == null)
+        {
+            TempData["ErrorMessage"] = "El monto excede el límite de crédito disponible.";
             return RedirectToAction("Index");
         }
 
-        // Obtener la tarjeta de crédito seleccionada
-        var selectedCard = creditCards.FirstOrDefault(c => c.AccountCreditId == model.AccountCreditId);
-        if (selectedCard == null)
-        {
-            TempData["Error"] = "Tarjeta de crédito no encontrada.";
-            return RedirectToAction("Index");
-        }
-
-        // Verificar si el monto del avance supera el límite de crédito
-        if (model.Amount > selectedCard.Amount)
-        {
-            TempData["Error"] = "El monto del avance no puede exceder el límite de crédito de la tarjeta.";
-            return RedirectToAction("Index");
-        }
-
-        // Obtener la cuenta de ahorro seleccionada
-        var selectedAccount = savingAccounts.FirstOrDefault(a => a.DestinationAccountId == model.DestinationAccountId);
-        if (selectedAccount == null)
-        {
-            TempData["Error"] = "Cuenta de ahorro no encontrada.";
-            return RedirectToAction("Index");
-        }
-
-        // Realizar el avance de efectivo
-        // Aquí podrías agregar lógica para actualizar la base de datos con el avance.
-        advances.Add(new AdvanceViewModel
-        {
-            Amount = model.Amount,
-            AccountCreditId = model.AccountCreditId,
-            DestinationAccountId = model.DestinationAccountId,
-            DateAdvance = DateTime.Now
-        });
-
-        TempData["Success"] = "Avance de efectivo realizado correctamente.";
         return RedirectToAction("Index");
     }
 }

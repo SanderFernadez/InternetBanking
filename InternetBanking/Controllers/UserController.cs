@@ -184,5 +184,12 @@ namespace WebApp.InternetBanking.Controllers
             return RedirectToRoute(new { controller = "User", action = "Index" });
         }
 
+        [Authorize]
+        public  IActionResult AccessDenied()
+        {
+           
+            return View();
+        }
+
     }
 }

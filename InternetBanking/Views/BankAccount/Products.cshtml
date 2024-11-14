@@ -97,7 +97,7 @@
 
                 <!-- Mostrar el LoanAmount solo si el tipo de cuenta es "Loan" -->
                 <td>
-                    @if (account.AccountType == AccountType.Loan)
+                    @if (account.AccountType == AccountType.Loan || account.AccountType == AccountType.Credit)
                     {
                         @account.LoanAmount
                     }

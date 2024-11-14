@@ -24,7 +24,6 @@ namespace InternetBanking.Core.Application.Services
         }
 
 
-
         public async Task<SavePaymentViewModel> UpdateCreditAccounts(SavePaymentViewModel vm)
         {
             var allAccounts = await _bankAccountService.GetAllViewModel();
@@ -43,34 +42,72 @@ namespace InternetBanking.Core.Application.Services
                 throw new InvalidOperationException("La cuenta de origen seleccionada no es válida.");
             }
 
-            // Validar que la cuenta de origen tiene suficiente saldo
-            if (originAccount.CurrentBalance < vm.AmountPaid)
+            // Verificar si la cuenta de origen es igual a la cuenta de destino, y si es así, transferir 0 pesos
+            if (originAccount.AccountNumber == vm.DestinationAccount)
             {
-                return null;
+                vm.AmountPaid = 0;  // No realizar ninguna transferencia si son iguales
             }
 
+            // Verificar saldo o crédito disponible en cuenta de origen
             decimal amountToPay = vm.AmountPaid;
+            if (originAccount.AccountType == AccountType.Credit)
+            {
+                decimal availableCredit = (originAccount.CreditLimit ?? 0) - (originAccount.LoanAmount ?? 0);
+                if (availableCredit < vm.AmountPaid)
+                {
+                    return null; // Retornar null si no hay suficiente crédito disponible
+                }
+                // Aumentar el uso de crédito en la cuenta de origen
+                originAccount.LoanAmount += vm.AmountPaid;
+            }
+            else if (originAccount.CurrentBalance < vm.AmountPaid)
+            {
+                return null; // Retornar null si el saldo de la cuenta de origen es insuficiente
+            }
+            else
+            {
+                originAccount.CurrentBalance -= vm.AmountPaid;
+            }
 
             // Verificar si la cuenta de destino es una tarjeta de crédito o un préstamo
+            decimal amountRemaining = 0;
             if (destinationAccount.AccountType == AccountType.Credit)
             {
-                // Verificar que el monto pagado no exceda la deuda de la tarjeta
-                amountToPay = Math.Min(vm.AmountPaid, destinationAccount.CreditLimit ?? 0);
-                destinationAccount.LoanAmount -= amountToPay; // Reducir el límite de crédito en la cuenta de destino
+                // Si el monto pagado es mayor a la deuda, solo toma lo necesario para cubrir la deuda
+                decimal debtAmount = destinationAccount.LoanAmount ?? 0;
+                amountToPay = Math.Min(vm.AmountPaid, debtAmount); // No se paga más que la deuda
+                destinationAccount.LoanAmount -= amountToPay;
+
+                // Si el monto pagado es mayor que la deuda, el sobrante se devuelve a la cuenta de origen
+                amountRemaining = vm.AmountPaid - amountToPay;
             }
             else if (destinationAccount.AccountType == AccountType.Loan)
             {
                 // Verificar que el monto pagado no exceda el préstamo
-                amountToPay = Math.Min(vm.AmountPaid, destinationAccount.LoanAmount ?? 0);
-                destinationAccount.LoanAmount -= amountToPay; // Reducir el monto del préstamo en la cuenta de destino
+                decimal loanAmount = destinationAccount.LoanAmount ?? 0;
+                amountToPay = Math.Min(vm.AmountPaid, loanAmount); // No se paga más que lo que se debe
+                destinationAccount.LoanAmount -= amountToPay;
+
+                // Si el monto pagado es mayor que el préstamo, el sobrante se devuelve a la cuenta de origen
+                amountRemaining = vm.AmountPaid - amountToPay;
             }
             else
             {
                 throw new InvalidOperationException("La cuenta destino no es ni una tarjeta de crédito ni un préstamo.");
             }
 
-            // Realizar la transacción si todas las validaciones pasaron
-            originAccount.CurrentBalance -= amountToPay;
+            // Si hay un sobrante, se devuelve a la cuenta de origen
+            if (amountRemaining > 0)
+            {
+                if (originAccount.AccountType == AccountType.Credit)
+                {
+                    originAccount.CurrentBalance += amountRemaining; // Devuelve el sobrante al balance de la cuenta de crédito
+                }
+                else
+                {
+                    originAccount.CurrentBalance += amountRemaining; // Devuelve el sobrante al balance de la cuenta corriente
+                }
+            }
 
             // Crear SaveBankAccountViewModel para actualizar las cuentas en la base de datos
             SaveBankAccountViewModel saveOriginAccount = new SaveBankAccountViewModel()
@@ -112,7 +149,7 @@ namespace InternetBanking.Core.Application.Services
             SavePaymentViewModel payment = new()
             {
                 DestinationAccount = vm.DestinationAccount,
-                AmountPaid = amountToPay,
+                AmountPaid = amountToPay, // Registra solo la cantidad que se usó para pagar la deuda
                 SourceAccount = vm.SourceAccount,
                 TransactionType = vm.TransactionType,
                 PaymentDate = DateTime.Now
