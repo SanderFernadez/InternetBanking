@@ -1,0 +1,136 @@
+﻿@using InternetBanking.Core.Application.ViewModels.BankAccounts
+@using InternetBanking.Core.Domain.Enums
+@model List<BankAccountViewModel>
+
+@{
+    ViewData["Title"] = "Productos";
+}
+
+
+
+
+
+
+
+<!-- Formulario para agregar productos -->
+<div>
+    <h3>Agregar Producto</h3>
+    <form asp-controller="BankAccount" asp-action="CreateProduct" method="post">
+        <input type="hidden" name="UserId" value="@ViewData["UserId"]" />
+
+
+        <div class="form-group">
+            <label for="AccountType">Tipo de Producto</label>
+            <select name="AccountType" id="AccountType" class="form-control" onchange="toggleFields()">
+                <option value="">Seleccione un tipo de producto</option>
+                @foreach (var type in Enum.GetValues(typeof(AccountType)).Cast<AccountType>())
+                {
+                    if (type != AccountType.SavingPrincipal) // Excluye la opción SavingPrincipal
+                    {
+                        <option value="@type">@type</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- Campos condicionales -->
+        <div id="creditLimitField" class="form-group" style="display: none;">
+            <label for="CreditLimit">Límite de Crédito</label>
+            <input type="number" name="CreditLimit" id="CreditLimit" class="form-control" min="0" placeholder="Ingrese el límite de crédito">
+        </div>
+
+        <div id="loanAmountField" class="form-group" style="display: none;">
+            <label for="LoanAmount">Monto del Préstamo</label>
+            <input type="number" name="LoanAmount" id="LoanAmount" class="form-control" min="0" placeholder="Ingrese el monto del préstamo">
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Agregar</button>
+    </form>
+</div>
+
+<script>
+    function toggleFields() {
+        var accountType = document.getElementById("AccountType").value;
+        var creditLimitField = document.getElementById("creditLimitField");
+        var loanAmountField = document.getElementById("loanAmountField");
+
+        // Muestra el campo adecuado según el tipo de producto seleccionado
+        creditLimitField.style.display = (accountType === "Credit") ? "block" : "none";
+        loanAmountField.style.display = (accountType === "Loan") ? "block" : "none";
+    }
+</script>
+
+<hr>
+
+<!-- Lista de productos actuales -->
+<h3>Productos Actuales</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Número de Cuenta</th>
+            <th>Saldo Inicial</th>
+            <th>Límite de Crédito</th>
+            <th>Deudas</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model)
+        {
+            <tr>
+                <td>@account.AccountType.ToString()</td>
+                <td>@account.AccountNumber</td>
+                <td>@account.InitialAmount</td>
+
+                <!-- Mostrar el CreditLimit solo si el tipo de cuenta es "Credit" -->
+                <td>
+                    @if (account.AccountType == AccountType.Credit)
+                    {
+                        @account.CreditLimit
+                    }
+                    else
+                    {
+                        <span>No Aplica</span>
+                    }
+                </td>
+
+                <!-- Mostrar el LoanAmount solo si el tipo de cuenta es "Loan" -->
+                <td>
+                    @if (account.AccountType == AccountType.Loan || account.AccountType == AccountType.Credit)
+                    {
+                        @account.LoanAmount
+                    }
+                    else
+                    {
+                        <span>No Aplica</span>
+                    }
+                </td>
+
+                <td>
+                    @if (account.AccountType == AccountType.SavingPrincipal)
+                    {
+                        <span class="text-muted">No se puede eliminar</span>
+                    }
+                    else if (account.AccountType == AccountType.Credit && account.LoanAmount != 0)
+                    {
+                        <span class="text-muted">No se puede eliminar: deuda pendiente</span>
+                    }
+                    else if (account.AccountType == AccountType.Loan && account.LoanAmount != 0)
+                    {
+                        <span class="text-muted">No se puede eliminar: deuda pendiente</span>
+                    }
+                    else
+                    {
+                        <form asp-action="DeleteProduct" method="post" class="d-inline">
+                            <input type="hidden" name="Id" value="@account.Id" />
+                            <input type="hidden" name="UserId" value="@ViewData["UserId"]" />
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

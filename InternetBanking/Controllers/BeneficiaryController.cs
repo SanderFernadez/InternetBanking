@@ -1,67 +1,72 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Beneficiary;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-public class BeneficiariesController : Controller
+namespace WebApp.InternetBanking.Controllers
+
 {
-    // Simulación de base de datos en memoria
-    private static List<BeneficiaryViewModel> beneficiaries = new List<BeneficiaryViewModel>();
-
-    // Método para mostrar la lista de beneficiarios
-    public IActionResult Index()
+    [Authorize]
+    public class BeneficiaryController : Controller
     {
-        return View(beneficiaries);
-    }
 
-    // Método para agregar un beneficiario
-    [HttpPost]
-    public IActionResult AddBeneficiary(SaveBeneficiaryViewModel model)
-    {
-        // Validar que el número de cuenta no esté vacío
-        if (model.BeneficiaryAccount <= 0)
+        private readonly IBeneficiaryService _beneficiaryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public BeneficiaryController(IBeneficiaryService beneficiaryService, IHttpContextAccessor httpContextAccessor)
         {
-            TempData["Error"] = "El número de cuenta es requerido.";
+            _beneficiaryService = beneficiaryService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> Index()
+        {
+            var beneficiaries = await _beneficiaryService.LoadBeneficiary(); 
+
+
+            return View(beneficiaries);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> DeletePost (int Id)
+        {
+            await _beneficiaryService.Delete(Id);
+            return RedirectToRoute(new { Controller = "Beneficiary", action = "Index" });
+        }
+
+
+
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> AddBeneficiary(int beneficiaryAccount)
+
+        {
+
+            var filter = await _beneficiaryService.FilterBeneficiary(beneficiaryAccount);
+            
+            if (!filter)
+            {
+                TempData["ErrorMessage"] = "Solo se pueden agregar cuentas de ahorro como beneficiarios";
+                return RedirectToAction("Index");  // Redirige a la vista de tu elección  
+            }
+
+            var result = await _beneficiaryService.AddBeneficiaryAccount(beneficiaryAccount);
+
+            if (result == null)
+            {
+                TempData["ErrorMessage"] = "No se pudo agregar el beneficiario. Puede ser que la cuenta no exista o ya esté registrada como beneficiario.";
+                return RedirectToAction("Index");  // Redirige a la vista de tu elección
+            }
+
+            // Beneficiario agregado con éxito
+            TempData["SuccessMessage"] = "Beneficiario agregado exitosamente.";
             return RedirectToAction("Index");
         }
 
-        // Simulación de verificación de cuenta (reemplazar con la lógica real)
-        bool accountExists = model.BeneficiaryAccount == 123456789; // Cambia esto por la verificación real
 
-        if (!accountExists)
-        {
-            TempData["Error"] = "El número de cuenta no existe.";
-            return RedirectToAction("Index");
-        }
 
-        // Crear un nuevo beneficiario y agregarlo a la lista
-        var newBeneficiary = new BeneficiaryViewModel
-        {
-            Id = beneficiaries.Count + 1,
-            UserId = model.UserId, // Asegúrate de que el UserId esté configurado correctamente
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            BeneficiaryAccount = model.BeneficiaryAccount
-        };
-        beneficiaries.Add(newBeneficiary);
 
-        TempData["Success"] = "Beneficiario agregado correctamente.";
-        return RedirectToAction("Index");
-    }
 
-    // Método para eliminar un beneficiario
-    public IActionResult DeleteBeneficiary(int id)
-    {
-        // Buscar el beneficiario por ID
-        var beneficiary = beneficiaries.FirstOrDefault(b => b.Id == id);
-        if (beneficiary != null)
-        {
-            beneficiaries.Remove(beneficiary);
-            TempData["Success"] = "Beneficiario eliminado correctamente.";
-        }
-        else
-        {
-            TempData["Error"] = "Beneficiario no encontrado.";
-        }
-        return RedirectToAction("Index");
     }
 }

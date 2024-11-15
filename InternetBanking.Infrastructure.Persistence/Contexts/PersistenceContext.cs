@@ -1,5 +1,4 @@
 ﻿
-using Azure;
 using InternetBanking.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,15 +55,9 @@ namespace InternetBanking.Infrastructure.Persistence.Contexts
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.Account)
                 .WithMany(a => a.Transactions)
-                .HasForeignKey(t => t.AccountId)
+                .HasForeignKey(t => t.DestinationAccount)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Relationship: Transaction - Payment (1:1)
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Transaction)
-                .WithOne(t => t.Payment)
-                .HasForeignKey<Payment>(p => p.TransactionId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Relationship: Account (Credit) - CashAdvance (1:N)
             modelBuilder.Entity<Advance>()
@@ -152,9 +145,7 @@ namespace InternetBanking.Infrastructure.Persistence.Contexts
                 .HasColumnType("decimal(18,2)") // Ajusta la precisión y escala
                 .IsRequired();
 
-            modelBuilder.Entity<Payment>()
-                .Property(p => p.TransactionId)
-                .IsRequired(); // Asegúrate de que esté relacionado correctamente
+      
 
             #endregion
 

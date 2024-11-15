@@ -1,0 +1,153 @@
+﻿@using InternetBanking.Core.Application.Dtos.SystemDates
+@model BankAccountResponse
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="dashboard">
+        @if (Model != null)
+        {
+            <!-- Tarjeta de Resumen de Transacciones -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-exchange-alt"></i> Resumen de Transacciones
+                </div>
+                <div class="card-body">
+                    <h2>@Model.TotalTransactions</h2>
+                    <p>Transacciones totales en el sistema</p>
+                    <p>Transacciones de Hoy: <span>@Model.DailyTransactionsCount</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
+            </div>
+
+            <!-- Tarjeta de Resumen de Pagos -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-dollar-sign"></i> Resumen de Pagos
+                </div>
+                <div class="card-body">
+                    <h2>@Model.TotalPayments</h2>
+                    <p>Pagos totales en el sistema</p>
+                    <p>Pagos de Hoy: <span>@Model.DailyPaymentsCount</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
+            </div>
+
+            <!-- Tarjeta de Resumen de Usuarios -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-users"></i> Resumen de Clientes Activos e Inactivos
+                </div>
+                <div class="card-body">
+                    <h2>@Model.TotalUsers</h2>
+                    <p>Clientes Activos en el sistema</p>
+                    <p>Clientes Inactivos: <span>@Model.InactiveUsersCount</span></p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
+            </div>
+
+            <!-- Tarjeta de Resumen de Productos -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-box"></i> Productos asignados a usuarios
+                </div>
+                <div class="card-body">
+                    <h2>@Model.TotalAccounts</h2>
+                    <p>Este es el número total de productos asignados a los usuarios.</p>
+                </div>
+                <div class="card-footer text-muted">
+                    Última actualización: @DateTime.Now.ToString("g")
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No hay datos disponibles.</p>
+        }
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-top: 50px !important;
+        padding: 20px;
+    }
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 200px;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+    .card-header {
+        background-color: #4a90e2;
+        color: #ffffff;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .card-body {
+        padding: 30px 20px;
+    }
+
+        .card-body h2 {
+            font-size: 40px;
+            color: #4a90e2;
+            margin: 0;
+        }
+
+        .card-body p {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555555;
+        }
+
+        .card-body span {
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+    .card-footer {
+        background-color: #f9f9f9;
+        font-size: 12px;
+        color: #888888;
+        padding: 10px;
+    }
+</style>

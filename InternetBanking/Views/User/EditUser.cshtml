@@ -7,6 +7,20 @@
     ViewData["Title"] = isEditing ? "Editar Usuario" : "Crear Usuario";
 }
 
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+
+
 <h2>@ViewData["Title"]</h2>
 
 <form method="post"
@@ -15,72 +29,108 @@
 
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="IsVerified" />
+  
 
-    <div class="mb-3">
-        <label asp-for="FirstName" class="form-label">Nombre</label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="FirstName" class="form-label">Nombre</label>
+            <input asp-for="FirstName" class="form-control" placeholder="Enter your name.." />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="LastName" class="form-label">Apellido</label>
+            <input asp-for="LastName" class="form-control" placeholder="Enter your last name.." />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Cedula" class="form-label">Cédula</label>
+            <input asp-for="Cedula" class="form-control" placeholder="Enter your Cédula.." />
+            <span asp-validation-for="Cedula" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Email" class="form-label">Correo Electrónico</label>
+            <input asp-for="Email" type="email" class="form-control" placeholder="infoxy@gmail.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="UserName" class="form-label">Usuario</label>
+            <input asp-for="UserName" class="form-control" placeholder="username..." />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
+            <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+
+        <div class="col-md-12 mb-3">
+            @if (isEditing)
+            {
+                @for (int i = 0; i < Model.Roles.Count; i++)
+                {
+                    <input type="hidden" name="Roles[@i]" value="@Model.Roles[i]" />
+                }
+
+                <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario" disabled>
+                    <option >Seleccione el tipo de usuario</option>
+                    <option value="@Roles.Client">Cliente</option>
+                    <option value="@Roles.Admin">Administrador</option>
+                </select>
+            }
+            else
+            {
+                <select asp-for="Roles" class="form-select" id="roleSelect" aria-label="Tipo de Usuario">
+                    <option disabled>Seleccione un  tipo de usuario</option>
+                    <option value="@Roles.Client">Cliente</option>
+                    <option value="@Roles.Admin">Administrador</option>
+                    
+                </select>
+                <span asp-validation-for="Roles" class="text-danger"></span>
+            }
+           
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="********" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3" id="initialAmountField" style="display: none;">
+            <label asp-for="InitialAmount" class="form-label">Monto Inicial</label>
+            <input asp-for="InitialAmount" class="form-control" placeholder="0" />
+            <span asp-validation-for="InitialAmount" class="text-danger"></span>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="LastName" class="form-label">Apellido</label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary mx-2">Guardar</button>
+        <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary mx-2">Cancelar</a>
 
-    <div class="mb-3">
-        <label asp-for="UserName" class="form-label">Nombre de Usuario</label>
-        <input asp-for="UserName" class="form-control" />
-        <span asp-validation-for="UserName" class="text-danger"></span>
-    </div>
+        @if (isEditing)
+        {
 
-    <div class="mb-3">
-        <label asp-for="Cedula" class="form-label">Cédula</label>
-        <input asp-for="Cedula" class="form-control" />
-        <span asp-validation-for="Cedula" class="text-danger"></span>
-    </div>
+            @if (Model.Roles.Contains(Roles.Client.ToString()))
+            {
+                <a asp-controller="BankAccount" asp-action="EditProduct" asp-route-UserId="@Model.Id" class="btn btn-warning mx-2">Editar Producto</a>
 
-    <div class="mb-3">
-        <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
 
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label">Correo Electrónico</label>
-        <input asp-for="Email" type="email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+            }
+        }
 
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label">Contraseña</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="ConfirmPassword" class="form-label">Confirmar</label>
-        <input asp-for="ConfirmPassword" type="password" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Rol</label>
-        <select asp-for="Roles" class="form-select" id="roleSelect">
-            <option value="@Roles.Client">Cliente</option>
-            <option value="@Roles.Admin">Administrador</option>
-            <option value="@Roles.SuperAdmin">Super Administrador</option>
-        </select>
-    </div>
-
-    <div class="mb-3" id="initialAmountField" style="display: none;">
-        <label asp-for="InitialAmount" class="form-label">Monto Inicial</label>
-        <input asp-for="InitialAmount" class="form-control" />
-        <span asp-validation-for="InitialAmount" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">@ViewData["Title"]</button>
-    <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary">Cancelar</a>
 </form>
 
 @section Scripts {
@@ -102,3 +152,93 @@
         });
     </script>
 }
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6fb;
+        color: #333;
+    }
+
+    h2 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    form {
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #34495e;
+        margin-bottom: 5px;
+    }
+
+    .form-control, .form-select {
+        padding: 12px 15px;
+        font-size: 15px;
+        color: #34495e;
+        border: 1px solid #dcdfe3;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+    .row .col-md-6 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .mb-3 {
+        margin-bottom: 15px;
+    }
+
+    .text-danger {
+        font-size: 13px;
+        color: #e74c3c;
+        margin-top: 5px;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+    .btn-secondary {
+        background-color: #bdc3c7;
+        color: #fff;
+    }
+
+        .btn-secondary:hover {
+            background-color: #95a5a6;
+        }
+</style>

@@ -43,4 +43,4 @@ app.MapControllerRoute(
     name: "default",
    pattern: "{controller=User}/{action=Index}/{id?}");
 
-app.Run();
+await app.RunAsync();

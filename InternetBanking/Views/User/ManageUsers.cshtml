@@ -1,96 +1,153 @@
 ﻿@using InternetBanking.Core.Application.Dtos.Account
+@using InternetBanking.Core.Application.Helpers
 @model List<AuthenticationResponse>
+
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    var User = httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+}
 
 @{
     ViewData["Title"] = "Administración de usuarios";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<!-- Botones para seleccionar el tipo de usuario -->
-<div class="mb-4">
-    <button id="btnAllUsers" class="btn btn-outline-dark me-2" onclick="showAll()">
+<div class="button-group mb-4">
+    <button id="btnAllUsers" class="btn-filter active" onclick="showAll()">
         <i class="fas fa-users"></i> Todos
     </button>
-    <button id="btnAdmins" class="btn btn-outline-primary me-2" onclick="filterTable('Admin')">
+    <button id="btnAdmins" class="btn-filter" onclick="filterTable('Admin')">
         <i class="fas fa-user-shield"></i> Administradores
     </button>
-    <button id="btnClients" class="btn btn-outline-secondary" onclick="filterTable('Client')">
+    <button id="btnClients" class="btn-filter" onclick="filterTable('Client')">
         <i class="fas fa-user"></i> Clientes
     </button>
-    <a asp-controller="User" asp-action="Create" class="btn btn-success">
+    <a asp-controller="User" asp-action="Create" class="btn-add-user">
         <i class="fas fa-user-plus"></i> Agregar Usuario
     </a>
 </div>
 
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Nombre de Usuario</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Cédula</th>
-            <th>Número de Teléfono</th>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="userTableBody">
-        @foreach (var user in Model)
-        {
-            <tr class="user-row" data-role="@string.Join(", ", user.Roles)">
-                <td>@user.UserName</td>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.Cedula</td>
-                <td>@user.PhoneNumber</td>
-                <td>@user.Email</td>
-                <td>
-                    @if (user.Roles != null && user.Roles.Any())
-                    {
-                        @string.Join(", ", user.Roles)
-                    }
-                    else
-                    {
-                        <span class="text-muted">Sin roles</span>
-                    }
-                </td>
-                <td>
-                    @if (user.IsVerified)
-                    {
-                        <span class="badge bg-success">Activo</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Inactivo</span>
-                    }
-                </td>
-                <td>
-                    <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn btn-primary btn-sm me-1" title="Editar">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-                    @if (user.IsVerified)
-                    {
-                        <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn btn-warning btn-sm me-1" title="Inactivar">
-                            <i class="fas fa-user-slash"></i> Inactivar
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn btn-success btn-sm" title="Activar">
-                            <i class="fas fa-user-check"></i> Activar
-                        </a>
-                    }
-                </td>
+<div class="table-container">
+    <table class="user-table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cédula</th>
+                <th>Número de Teléfono</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody id="userTableBody">
+            @foreach (var user in Model)
+            {
+                <tr class="user-row" data-role="@string.Join(", ", user.Roles)">
+                    <td>@user.UserName</td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.Cedula</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>@user.Email</td>
+                    <td>
+                        @if (user.Roles != null && user.Roles.Any())
+                        {
+                            @string.Join(", ", user.Roles)
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin roles</span>
+                        }
+                    </td>
+                    <td>
+                        @if (user.IsVerified)
+                        {
+                            <span class="status active">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="status inactive">Inactivo</span>
+                        }
+                    </td>
+                    <td class="actions">
+                        @if (User.Id == user.Id)
+                        {
+                            <a class="btn-action edit text-muted disabled" title="Editar">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn-action edit" title="Editar">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+
+                            @if (user.IsVerified)
+                            {
+                                <button class="btn-action toggle-status inactivate" data-bs-toggle="modal" data-bs-target="#confirmModal" data-username="@user.UserName" data-action="Inactivar">
+                                    <i class="fas fa-user-slash"></i> Inactivar
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn-action toggle-status activate" data-bs-toggle="modal" data-bs-target="#confirmModal" data-username="@user.UserName" data-action="Activar">
+                                    <i class="fas fa-user-check"></i> Activar
+                                </button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalText">¿Está seguro de que desea realizar esta operación?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a id="confirmModalActionLink" class="btn btn-primary">Confirmar</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+
+
+        // Muestra el modal de confirmación con los datos correctos
+        document.addEventListener('DOMContentLoaded', () => {
+            var confirmModal = document.getElementById('confirmModal');
+            confirmModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var userName = button.getAttribute('data-username');
+                var action = button.getAttribute('data-action');
+
+                // Actualiza el texto del modal según la acción
+                var modalText = document.getElementById('confirmModalText');
+                modalText.textContent = `¿Está seguro de que desea ${action.toLowerCase()} al usuario ${userName}?`;
+
+                // Actualiza el enlace para la acción confirmada
+                var actionLink = document.getElementById('confirmModalActionLink');
+                actionLink.href = `/User/StateUser?userName=${userName}`;
+            });
+        });
+
+
+
+
         function filterTable(role) {
             var rows = document.querySelectorAll('.user-row');
             rows.forEach(row => {
@@ -113,28 +170,150 @@
 }
 
 <style>
-    h2 {
-        font-family: 'Arial', sans-serif;
-        margin-bottom: 20px;
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f6fb;
+        color: #333;
     }
 
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin-top: 20px;
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 50px;
+        margin-bottom: 25px;
     }
 
-        .table th, .table td {
-            vertical-align: middle;
-            padding: 15px;
+    .btn-filter, .btn-add-user {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-filter {
+        background-color: #ecf0f3;
+        color: #333;
+        border: 1px solid #dcdfe3;
+    }
+
+        .btn-filter.active {
+            background-color: #3498db;
+            color: #fff;
+            border: 1px solid #3498db;
+            box-shadow: 0px 4px 15px rgba(52, 152, 219, 0.3);
         }
 
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
+        .btn-filter:hover {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+    .btn-add-user {
+        background-color: #27ae60;
+        color: #fff;
+        border: 1px solid #27ae60;
     }
 
-    .table-striped tbody tr:hover {
-        background-color: #f1f1f1;
+        .btn-add-user:hover {
+            background-color: #2ecc71;
+            box-shadow: 0px 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+    /* Contenedor de tabla con desplazamiento interno */
+    .table-container {
+        width: 98%;
+        max-height: 400px; /* Ajusta la altura máxima según sea necesario */
+        overflow-y: auto;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        margin-top: 50px;
     }
+
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .user-table thead {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .user-table th, .user-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .user-table tr:nth-child(even) {
+            background-color: #f8f9fb;
+        }
+
+        .user-table th {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .user-table td {
+            font-size: 15px;
+            color: #2c3e50;
+        }
+
+    .status {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+        .status.active {
+            background-color: #27ae60;
+            color: #fff;
+        }
+
+        .status.inactive {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+    /* Botones de acción */
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-action.edit {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .btn-action.toggle-status.inactivate {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-action.toggle-status.activate {
+            background-color: #27ae60;
+            color: #fff;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
 </style>

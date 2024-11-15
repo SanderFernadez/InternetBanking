@@ -47,8 +47,11 @@ namespace InternetBanking.Core.Application.ViewModels.Users
         [DataType(DataType.Upload)]
 
         public List<string> Roles { get; set; }
+
         public decimal? InitialAmount { get; set; }
+
         public bool HasError { get; set; }
+
         public bool IsVerified { get; set; }
 
         public string? Error { get; set; }

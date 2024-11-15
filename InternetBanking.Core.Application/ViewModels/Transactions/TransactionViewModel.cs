@@ -1,8 +1,7 @@
-﻿using System;
+﻿using InternetBanking.Core.Application.ViewModels.BankAccounts;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace InternetBanking.Core.Application.ViewModels.Transactions
 {
@@ -14,7 +13,9 @@ namespace InternetBanking.Core.Application.ViewModels.Transactions
         public string TransactionType { get; set; } 
         public DateTime TransactionDate { get; set; } 
 
-     
-     
+        
+
+
+
     }
 }

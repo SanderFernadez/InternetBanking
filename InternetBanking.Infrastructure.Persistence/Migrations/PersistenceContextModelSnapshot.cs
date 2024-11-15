@@ -37,10 +37,16 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountType")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("CreditLimit")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("CurrentBalance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("InitialAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("LoanAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserId")
@@ -129,16 +135,13 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TransactionId")
+                    b.Property<int>("SourceAccount")
                         .HasColumnType("int");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TransactionId")
-                        .IsUnique();
 
                     b.ToTable("Payments", (string)null);
                 });
@@ -151,11 +154,14 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DestinationAccount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SourceAccount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
@@ -165,7 +171,7 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("DestinationAccount");
 
                     b.ToTable("Transactions", (string)null);
                 });
@@ -218,22 +224,11 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Navigation("DestinationAccount");
                 });
 
-            modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Payment", b =>
-                {
-                    b.HasOne("InternetBanking.Core.Domain.Entities.Transaction", "Transaction")
-                        .WithOne("Payment")
-                        .HasForeignKey("InternetBanking.Core.Domain.Entities.Payment", "TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Transaction");
-                });
-
             modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("InternetBanking.Core.Domain.Entities.Account", "Account")
                         .WithMany("Transactions")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("DestinationAccount")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -268,12 +263,6 @@ namespace InternetBanking.Infrastructure.Persistence.Migrations
                     b.Navigation("OriginTransfers");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("InternetBanking.Core.Domain.Entities.Transaction", b =>
-                {
-                    b.Navigation("Payment")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

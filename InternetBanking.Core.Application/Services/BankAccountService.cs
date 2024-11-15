@@ -1,29 +1,38 @@
-﻿
-
-using AutoMapper;
+﻿using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
+using InternetBanking.Core.Application.Dtos.BankAccounts;
 using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
+
 using InternetBanking.Core.Domain.Entities;
+using InternetBanking.Core.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using System.Runtime.Intrinsics.X86;
+
 
 namespace InternetBanking.Core.Application.Services
 {
     public class BankAccountService : GenericService<SaveBankAccountViewModel, BankAccountViewModel, Account>, IBankAccountService
     {
         private readonly IBankAccountRepository _bankAccountRepositor;
+        private readonly IAccountService _accountService;
+ 
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
+       
         private readonly AuthenticationResponse _userViewModel;
+        private static readonly Random _random = new Random();
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BankAccountService(IBankAccountRepository bankAccountRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor,  IUserService userService) : base(bankAccountRepository, mapper)
+        public BankAccountService(IBankAccountRepository bankAccountRepository, IAccountService accountService , IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(bankAccountRepository, mapper)
         {
             _bankAccountRepositor = bankAccountRepository;
             _httpContextAccessor = httpContextAccessor;
+            _accountService = accountService;
+           // _paymentService = paymentService;
             _userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
+            
         }
 
 
@@ -31,29 +40,201 @@ namespace InternetBanking.Core.Application.Services
 
         public override async Task<SaveBankAccountViewModel> Add(SaveBankAccountViewModel vm)
         {
-            //vm.UserId = _userViewModel.Id;
-           //vm.CreatedAt = DateTime.Now;
+            
            return await base.Add(vm);
         }
 
 
         public override async Task Update(SaveBankAccountViewModel vm, int Id)
         {
-           // vm.UserId = _userViewModel.Id;
-            //vm.CreatedAt = DateTime.Now;
-           // await base.Update(vm, Id);
+           
+            await base.Update(vm, Id);
+        }
+
+        public async Task<int> NumberOfProductsClient()
+        {
+            var clients = await GetAllViewModel(); // Espera a que se complete la operación
+
+            // Inicializa un contador para los productos
+            int totalProducts = clients.Count; // Obtiene el número de clientes (o productos según tu lógica)
+
+            return totalProducts;
         }
 
 
 
 
 
+        public async Task<UserBankAccouns> GetUserAccount(int accountnumber)
+        {
+            // Llama al método para obtener todos los beneficiarios.
+            var accounts = await GetAllViewModel();
+            var users = await _accountService.GetAllUsersAsync();
+
+            var selectedAccount = accounts.FirstOrDefault(a => a.AccountNumber == accountnumber);
+
+            if (selectedAccount == null)
+            {
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
+            }
+
+
+            var selectedUser =users.FirstOrDefault(u => u.Id == selectedAccount.UserId);
+
+
+            if (selectedUser == null)
+            {
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
+            }
+
+            var response = new UserBankAccouns
+            { 
+                Id = selectedUser.Id,
+                FirstName = selectedUser.FirstName,
+                LastName = selectedUser.LastName,
+                InitialAmount = selectedAccount.InitialAmount,
+                CurrentBalance = selectedAccount.CurrentBalance,
+                CreditLimit = selectedAccount.CreditLimit ?? 0,
+
+            
+            
+            };
+
+            
+
+
+            return response;
+        }
 
 
 
 
 
+        public async Task<SaveBankAccountViewModel> AddAmountUser(decimal amount, string UserId)
+        {
+            var accounts = await GetAllViewModel();
+            var editaccount = accounts.FirstOrDefault(a => a.UserId == UserId && a.AccountType == AccountType.SavingPrincipal);
+            
+            if (editaccount == null)
+            {
+                return null;
+            }
 
+            
+            editaccount.CurrentBalance += amount;
+
+            SaveBankAccountViewModel vm = new () {
+            
+                Id = editaccount.Id,
+                AccountType = editaccount.AccountType,
+                AccountNumber = editaccount.AccountNumber,
+                InitialAmount = editaccount.InitialAmount,
+                CurrentBalance = editaccount.CurrentBalance,
+                UserId = editaccount.UserId,
+                CreditLimit = editaccount.CreditLimit,
+                LoanAmount = editaccount.LoanAmount,
+            
+            };
+
+             await base.Update(vm, vm.Id);
+
+            return vm;
+        }
+
+
+
+        public async Task<List<BankAccountViewModel>> GetAccounts()
+        {
+            var accounts = await GetAllViewModel();
+            var accountsuser = accounts
+                 .Where(p => p.UserId == _userViewModel.Id).ToList();
+
+            return  accountsuser;
+        }
+
+
+
+
+
+        public int GenerateAccountNumber()
+        {
+            return _random.Next(100000000, 1000000000); 
+        }
+
+        public async Task<List<BankAccountViewModel>> GetClientProducts(string UserId)
+        {
+            var products = await GetAllViewModel();
+            var userproducts = products
+                .Where(p => p.UserId == UserId).ToList();
+
+            return userproducts; 
+        }
+
+        public async Task CreateProduct(AccountType accountType, string UserId, decimal creditLimit, decimal loanAmount)
+        {
+            // Inicializa el ViewModel con los valores necesarios
+            SaveBankAccountViewModel vm = new SaveBankAccountViewModel
+            {
+                AccountType = accountType,
+                AccountNumber = GenerateAccountNumber(),
+                InitialAmount = 0,
+                CurrentBalance = 0,
+                UserId = UserId,
+                CreditLimit = accountType == AccountType.Credit ? creditLimit : 0,
+                LoanAmount = accountType == AccountType.Loan ? loanAmount : 0,
+            };
+
+            // Si es una cuenta de tipo 'Loan', se agrega el monto del préstamo al balance
+            if (accountType == AccountType.Loan)
+            {
+                // Actualiza el balance en la cuenta principal
+                var updatedBalance = await AddLoan(loanAmount, UserId);
+                
+            }
+
+            // Agrega el producto al sistema
+            await base.Add(vm);
+        }
+
+
+        public async Task<decimal> AddLoan(decimal loan, string UserId)
+        {
+            // Obtiene las cuentas que pertenecen al UserId y filtra la cuenta principal
+            var accounts = await GetAllViewModel();
+            var selectedAccount = accounts.FirstOrDefault(a => a.UserId == UserId && a.AccountType == AccountType.SavingPrincipal);
+
+            // Verifica si se encontró la cuenta principal
+            if (selectedAccount != null)
+            {
+                // Suma el monto del préstamo al balance actual de la cuenta principal
+                selectedAccount.CurrentBalance += loan;
+
+                // Mapea la cuenta seleccionada a un SaveBankAccountViewModel para la actualización
+                SaveBankAccountViewModel vm = new SaveBankAccountViewModel
+                {
+                    Id = selectedAccount.Id,
+                    AccountType = selectedAccount.AccountType,
+                    AccountNumber = selectedAccount.AccountNumber,
+                    InitialAmount = selectedAccount.InitialAmount,
+                    CurrentBalance = selectedAccount.CurrentBalance,
+                    UserId = selectedAccount.UserId,
+                    CreditLimit = selectedAccount.AccountType == AccountType.Credit ? selectedAccount.CreditLimit : 0,
+                    LoanAmount = selectedAccount.LoanAmount + loan, // Actualiza el monto del préstamo acumulado
+                };
+
+                // Actualiza la cuenta con el nuevo balance
+                await base.Update(vm, vm.Id);
+
+                // Retorna el balance actualizado
+                return vm.CurrentBalance;
+            }
+            else
+            {
+                throw new Exception("Cuenta principal no encontrada para el UserId proporcionado");
+            }
+        }
 
 
 
