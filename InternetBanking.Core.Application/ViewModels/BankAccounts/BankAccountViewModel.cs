@@ -13,18 +13,16 @@ namespace InternetBanking.Core.Application.ViewModels.BankAccounts
 
         public int AccountNumber { get; set; }
 
-        public decimal InitialAmount { get; set; }
+        public Decimal InitialAmount { get; set; }
 
-        public decimal CurrentBalance { get; set; }
+        public Decimal CurrentBalance { get; set; }
 
         public string UserId { get; set; }
 
-        public decimal? CreditLimit { get; set; }
-        public decimal? LoanAmount { get; set; }
+        public Decimal? CreditLimit { get; set; }
+        public Decimal? LoanAmount { get; set; }
 
-        public ICollection<AuthenticationResponse>? Users { get; set; }
-        public ICollection<PaymentViewModel>? Payments { get; set; }
-        public ICollection<TransactionViewModel>? Transactions { get; set; }
+      
 
     }
 }

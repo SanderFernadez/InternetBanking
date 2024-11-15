@@ -1,6 +1,6 @@
-﻿@using InternetBanking.Core.Application.ViewModels.Advances
+﻿@using InternetBanking.Core.Application.ViewModels.Transactions
 @using InternetBanking.Core.Domain.Enums
-@model SaveAdvanceViewModel
+@model SaveTransactionViewModel
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -15,39 +15,67 @@
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Avance de Efectivo</h5>
+            <h5 class="modal-title">Transferencia entre Cuentas</h5>
         </div>
         <div class="modal-body">
             <!-- Formulario de Transferencia -->
-            <form id="transferForm" method="post" action="@Url.Action("CashAdvance", "CashAdvance")">
+            <form id="transferForm" method="post" action="@Url.Action("Transaction", "Transaction")">
                 <!-- Cuenta de Origen -->
                 <div class="mb-4">
-                    <label asp-for="AccountCreditId" class="form-label font-weight-bold">Cuenta de Origen</label>
-                    <select asp-for="AccountCreditId" class="form-select form-select-lg" required>
-                        <option value="" disabled selected>Seleccione una Tarjeta de Crédito</option>
+                    <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
+                    <select asp-for="SourceAccount" id="sourceAccountSelect" class="form-select form-select-lg" required>
+                        <option value="" disabled selected>Seleccione una cuenta de origen</option>
                         @foreach (var account in Model.accounts)
                         {
-                            decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
-                            if (account.AccountType == AccountType.Loan || account.AccountType == AccountType.Saving || account.AccountType == AccountType.SavingPrincipal) continue;
-                            <option value="@account.Id">@account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))</option>
+                            if (account.AccountType == AccountType.Loan) continue;
+
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+                            else {
+                            <option value="@account.Id" data-account-id="@account.Id">
+                                @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                            </option>
+                            }
                         }
                     </select>
-                    <span asp-validation-for="AccountCreditId" class="text-danger"></span>
+                    <span asp-validation-for="SourceAccount" class="text-danger"></span>
                 </div>
 
                 <!-- Cuenta de Destino -->
                 <div class="mb-4">
-                    <label asp-for="DestinationAccountId" class="form-label font-weight-bold">Cuenta de Destino</label>
-                    <select asp-for="DestinationAccountId" class="form-select form-select-lg" required>
-                        <option value="" disabled selected>Seleccione la Cuenta de Ahorro</option>
+                    <label asp-for="DestinationAccount" class="form-label font-weight-bold">Cuenta de Destino</label>
+                    <select asp-for="DestinationAccount" id="destinationAccountSelect" class="form-select form-select-lg" required>
+                        <option value="" disabled selected>Seleccione una cuenta de destino</option>
                         @foreach (var account in Model.accounts)
                         {
-                            if (account.AccountType == AccountType.Credit || account.AccountType == AccountType.Loan) continue;
-                            <option value="@account.AccountNumber">@account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))</option>
+                            if ( account.AccountType == AccountType.Loan) continue;
+
+
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+
+                            else{
+
+                            <option value="@account.AccountNumber" data-account-id="@account.Id">
+                                @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                            </option>
+
+                            }
                         }
                     </select>
-                    <span asp-validation-for="DestinationAccountId" class="text-danger"></span>
+                    <span asp-validation-for="DestinationAccount" class="text-danger"></span>
                 </div>
+
 
                 <!-- Monto a Transferir -->
                 <div class="mb-4">
@@ -109,8 +137,8 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.querySelector('input[name="Amount"]');
-            const sourceAccountSelect = document.querySelector('select[name="AccountCreditId"]');
-            const destinationAccountSelect = document.querySelector('select[name="DestinationAccountId"]');
+            const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
+            const destinationAccountSelect = document.querySelector('select[name="DestinationAccount"]');
 
             amountInput.addEventListener("input", function () {
                 if (this.value < 0) {
@@ -160,5 +188,48 @@
                 document.getElementById("transferForm").submit();
             }
         });
+
+
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const sourceAccountSelect = document.getElementById("sourceAccountSelect");
+                const destinationAccountSelect = document.getElementById("destinationAccountSelect");
+
+                function filterAccounts() {
+                    const selectedSource = sourceAccountSelect.value;
+                    const selectedDestination = destinationAccountSelect.value;
+
+                    // Mostrar todas las opciones en ambos selectores primero para eliminar cualquier filtro anterior
+                    Array.from(sourceAccountSelect.options).forEach(option => option.hidden = false);
+                    Array.from(destinationAccountSelect.options).forEach(option => option.hidden = false);
+
+                    // Si hay una cuenta seleccionada en "Cuenta de Origen", ocultarla en "Cuenta de Destino"
+                    if (selectedSource) {
+                        Array.from(destinationAccountSelect.options).forEach(option => {
+                            if (option.getAttribute("data-account-id") === selectedSource) {
+                                option.hidden = true;
+                            }
+                        });
+                    }
+
+                    // Si hay una cuenta seleccionada en "Cuenta de Destino", ocultarla en "Cuenta de Origen"
+                    if (selectedDestination) {
+                        Array.from(sourceAccountSelect.options).forEach(option => {
+                            if (option.getAttribute("data-account-id") === selectedDestination) {
+                                option.hidden = true;
+                            }
+                        });
+                    }
+                }
+
+                // Escuchar los cambios en ambos selectores
+                sourceAccountSelect.addEventListener("change", filterAccounts);
+                destinationAccountSelect.addEventListener("change", filterAccounts);
+
+                // Llamar a la función al cargar para aplicar los filtros si ya hay valores seleccionados
+                filterAccounts();
+            });
+    
+
     </script>
 }

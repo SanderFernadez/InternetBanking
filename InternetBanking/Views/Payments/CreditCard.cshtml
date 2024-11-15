@@ -1,44 +1,186 @@
 ﻿@using InternetBanking.Core.Application.ViewModels.Payments
+@using InternetBanking.Core.Domain.Enums
 @model SavePaymentViewModel
 
-<div class="modal-dialog">
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Pago Tarjeta de Crédito</h5>
+        <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Pago a Tarjeta de Crédito</h5>
         </div>
         <div class="modal-body">
-            <form method="post" action="@Url.Action("ProcesarPagoTarjetaCredito", "Payments")">
-                <div class="mb-3">
-                    <label asp-for="TransactionId" class="form-label">Tarjeta de Crédito</label>
-                    <select asp-for="TransactionId" class="form-select">
-                        <option selected>Seleccione una tarjeta</option>
-                        @foreach (var tarjeta in ViewBag.TarjetasCredito)
+            <!-- Formulario de Pago -->
+            <form id="paymentForm" method="post" action="@Url.Action("CreditCard", "Payments")">
+
+                <!-- Tarjeta de Crédito (Cuenta Destino) -->
+                <div class="mb-4">
+                    <label asp-for="DestinationAccount" class="form-label font-weight-bold">Tarjeta de Crédito</label>
+                    <select asp-for="DestinationAccount" asp-items="@(new SelectList(Model.accounts.Where(a => a.AccountType == AccountType.Credit), "AccountNumber", "AccountNumber"))" class="form-select form-select-lg" required onchange="filterSourceAccounts()">
+                        <option value="" disabled selected>Seleccione la tarjeta de crédito</option>
+                    </select>
+                    <span asp-validation-for="DestinationAccount" class="text-danger"></span>
+                </div>
+
+                <!-- Cuenta de Origen -->
+                <div class="mb-4">
+                    <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
+                    <select asp-for="SourceAccount" class="form-select form-select-lg" required id="sourceAccountSelect">
+                        <option value="" disabled selected>Seleccione una cuenta de origen</option>
+                        @foreach (var account in Model.accounts)
                         {
-                            <option value="@tarjeta.Value">@tarjeta.Text</option>
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.Id" data-account-number="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+                            else if (account.AccountType == AccountType.Loan)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                <option value="@account.Id" data-account-number="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
                         }
                     </select>
-                    <span asp-validation-for="TransactionId" class="text-danger"></span>
+                    <span asp-validation-for="SourceAccount" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="AmountPaid" class="form-label">Monto</label>
-                    <input asp-for="AmountPaid" class="form-control" placeholder="Ingrese el monto" type="number" step="0.01" />
+
+
+                <!-- Monto a Pagar -->
+                <div class="mb-4">
+                    <label asp-for="AmountPaid" class="form-label font-weight-bold">Monto a Pagar</label>
+                    <input asp-for="AmountPaid" class="form-control form-control-lg" placeholder="Ingrese el monto" type="number" step="0.01" min="0.01" required />
                     <span asp-validation-for="AmountPaid" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="TransactionType" class="form-label">Cuenta de Origen</label>
-                    <select asp-for="TransactionType" class="form-select">
-                        <option selected>Seleccione una cuenta</option>
-                        @foreach (var cuenta in ViewBag.CuentasOrigen)
-                        {
-                            <option value="@cuenta.Value">@cuenta.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="TransactionType" class="text-danger"></span>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Realizar Pago</button>
+
+                <!-- Campos ocultos para las cuentas (envío al servidor) -->
+                @{
+                    int i = 0;
+                }
+                @foreach (var account in Model.accounts)
+                {
+                    <input type="hidden" name="Accounts[@i].Id" value="@account.Id" />
+                    <input type="hidden" name="Accounts[@i].AccountNumber" value="@account.AccountNumber" />
+                    <input type="hidden" name="Accounts[@i].CurrentBalance" value="@account.CurrentBalance" />
+                    <input type="hidden" name="Accounts[@i].UserId" value="@account.UserId" />
+                    <input type="hidden" name="Accounts[@i].AccountType" value="@account.AccountType" />
+                    <input type="hidden" name="Accounts[@i].InitialAmount" value="@account.InitialAmount" />
+                    <input type="hidden" name="Accounts[@i].CreditLimit" value="@account.CreditLimit" />
+                    <input type="hidden" name="Accounts[@i].LoanAmount" value="@account.LoanAmount" />
+                    i++;
+                }
+
+                <!-- Botón para abrir el modal de confirmación -->
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Realizar Pago</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Modal de Confirmación -->
+<div id="confirmationModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmación de Pago</h5>
+                <button type="button" class="close" onclick="document.getElementById('confirmationModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Deseas confirmar el pago a la tarjeta de crédito?</p>
+                <p><strong>Nombre del Destinatario:</strong> <span id="ownerName"></span></p>
+                <p><strong>Monto:</strong> <span id="confirmationAmount"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('confirmationModal').style.display='none'">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPayment()">Confirmar Pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Scripts de Validación de ASP.NET Core -->
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+
+        function filterSourceAccounts() {
+            const destinationAccount = document.querySelector('select[name="DestinationAccount"]').value;
+            const sourceAccountOptions = document.querySelectorAll('#sourceAccountSelect option');
+
+            // Itera sobre las opciones y oculta la cuenta de origen si coincide con la cuenta destino
+            sourceAccountOptions.forEach(option => {
+                if (option.getAttribute('data-account-number') === destinationAccount) {
+                    option.style.display = 'none';
+                } else {
+                    option.style.display = 'block';
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.querySelector('input[name="AmountPaid"]');
+            const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
+
+            function showAlert(message) {
+                alert(message);
+            }
+
+            window.showConfirmationModal = function () {
+                const destinationAccount = document.querySelector('select[name="DestinationAccount"]').value;
+                const amountPaid = parseFloat(amountInput.value);
+                const selectedAccountId = sourceAccountSelect.value;
+
+                if (!destinationAccount) {
+                    showAlert("Por favor, seleccione una tarjeta de crédito.");
+                    return;
+                }
+                if (!selectedAccountId) {
+                    showAlert("Por favor, seleccione una cuenta de origen.");
+                    return;
+                }
+                if (!amountPaid || amountPaid <= 0) {
+                    showAlert("Por favor, ingrese un monto válido.");
+                    return;
+                }
+
+            
+                // Llama al controlador para obtener la información del dueño de la cuenta destino
+                fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
+                            document.getElementById("confirmationAmount").innerText = amountPaid.toLocaleString("es-DO", { style: "currency", currency: "DOP" });
+                            document.getElementById("confirmationModal").style.display = "block";
+                        } else {
+                            showAlert("Cuenta destino no encontrada.");
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            };
+
+            window.confirmPayment = function () {
+                document.getElementById("paymentForm").submit();
+            };
+        });
+    </script>
+
+}

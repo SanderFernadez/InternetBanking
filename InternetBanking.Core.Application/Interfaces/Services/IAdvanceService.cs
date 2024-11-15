@@ -7,6 +7,6 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 {
     public interface IAdvanceService: IGenericService<SaveAdvanceViewModel, AdvanceViewModel, Advance>
     {
-
+        Task<SaveAdvanceViewModel> CashAdvance(SaveAdvanceViewModel vm);
     }
 }

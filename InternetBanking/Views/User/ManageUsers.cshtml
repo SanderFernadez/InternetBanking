@@ -5,17 +5,12 @@
 @inject IHttpContextAccessor httpContextAccessor
 @{
     var User = httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
-
 }
-
-
-
 
 @{
     ViewData["Title"] = "Administración de usuarios";
 }
 
-<!-- Botones para seleccionar el tipo de usuario -->
 <div class="button-group mb-4">
     <button id="btnAllUsers" class="btn-filter active" onclick="showAll()">
         <i class="fas fa-users"></i> Todos
@@ -31,7 +26,6 @@
     </a>
 </div>
 
-<!-- Contenedor de tabla con desplazamiento interno -->
 <div class="table-container">
     <table class="user-table table-striped table-hover">
         <thead>
@@ -78,49 +72,31 @@
                         }
                     </td>
                     <td class="actions">
-
                         @if (User.Id == user.Id)
                         {
-                            <!-- Deshabilitar el botón de edición para el usuario actual -->
-                            <a class="btn-action toggle-status  edit text-muted disabled" title="Editar">
+                            <a class="btn-action edit text-muted disabled" title="Editar">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
-
-                            <!-- Deshabilitar el botón de activación/desactivación para el usuario actual -->
-                            @if (user.IsVerified)
-                            {
-                                <a class="btn-action toggle-status text-muted disabled" title="Inactivar">
-                                    <i class="fas fa-user-slash"></i> Inactivar
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn-action toggle-status text-muted disabled" title="Activar">
-                                    <i class="fas fa-user-check"></i> Activar
-                                </a>
-                            }
                         }
                         else
                         {
-                            <!-- Mostrar los botones de editar y activar/desactivar para otros usuarios -->
                             <a asp-controller="User" asp-action="Edit" asp-route-userName="@user.UserName" asp-route-IsVerified="@user.IsVerified" class="btn-action edit" title="Editar">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
 
                             @if (user.IsVerified)
                             {
-                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status inactivate" title="Inactivar">
+                                <button class="btn-action toggle-status inactivate" data-bs-toggle="modal" data-bs-target="#confirmModal" data-username="@user.UserName" data-action="Inactivar">
                                     <i class="fas fa-user-slash"></i> Inactivar
-                                </a>
+                                </button>
                             }
                             else
                             {
-                                <a asp-controller="User" asp-action="StateUser" asp-route-userName="@user.UserName" class="btn-action toggle-status activate" title="Activar">
+                                <button class="btn-action toggle-status activate" data-bs-toggle="modal" data-bs-target="#confirmModal" data-username="@user.UserName" data-action="Activar">
                                     <i class="fas fa-user-check"></i> Activar
-                                </a>
+                                </button>
                             }
                         }
-
                     </td>
                 </tr>
             }
@@ -128,8 +104,50 @@
     </table>
 </div>
 
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalText">¿Está seguro de que desea realizar esta operación?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a id="confirmModalActionLink" class="btn btn-primary">Confirmar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+
+
+        // Muestra el modal de confirmación con los datos correctos
+        document.addEventListener('DOMContentLoaded', () => {
+            var confirmModal = document.getElementById('confirmModal');
+            confirmModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var userName = button.getAttribute('data-username');
+                var action = button.getAttribute('data-action');
+
+                // Actualiza el texto del modal según la acción
+                var modalText = document.getElementById('confirmModalText');
+                modalText.textContent = `¿Está seguro de que desea ${action.toLowerCase()} al usuario ${userName}?`;
+
+                // Actualiza el enlace para la acción confirmada
+                var actionLink = document.getElementById('confirmModalActionLink');
+                actionLink.href = `/User/StateUser?userName=${userName}`;
+            });
+        });
+
+
+
+
         function filterTable(role) {
             var rows = document.querySelectorAll('.user-row');
             rows.forEach(row => {

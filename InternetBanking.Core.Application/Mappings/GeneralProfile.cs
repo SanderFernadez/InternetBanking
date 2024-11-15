@@ -35,23 +35,17 @@ namespace InternetBanking.Core.Application.Mappings
               .ForMember(x => x.DestinationTransfers, opt => opt.Ignore());
 
             CreateMap<BankAccountViewModel, SaveBankAccountViewModel>()
-              .ReverseMap()
-              .ForMember(x => x.Transactions, opt => opt.Ignore())
-              .ForMember(x => x.Users, opt => opt.Ignore())
-              .ForMember(x => x.Transactions, opt => opt.Ignore())
-              .ForMember(x => x.Payments, opt => opt.Ignore());
+              .ReverseMap();
 
             #endregion
 
             #region Payment
 
             CreateMap<Payment, SavePaymentViewModel>()
-            .ReverseMap()
-            .ForMember(x => x.Transaction,opt => opt.Ignore());
+            .ReverseMap();
 
             CreateMap<Payment, PaymentViewModel>()
-             .ReverseMap()
-            .ForMember(x => x.Transaction, opt => opt.Ignore());
+             .ReverseMap();
 
             CreateMap<PaymentViewModel, SavePaymentViewModel>();
 
@@ -91,13 +85,11 @@ namespace InternetBanking.Core.Application.Mappings
 
             CreateMap<Transaction, SaveTransactionViewModel>()
               .ReverseMap()
-              .ForMember(x => x.Account, opt => opt.Ignore())
-              .ForMember(x => x.Payment, opt => opt.Ignore());
+              .ForMember(x => x.Account, opt => opt.Ignore());
 
             CreateMap<Transaction, TransactionViewModel>()
                 .ReverseMap()
-                .ForMember(x => x.Account, opt => opt.Ignore())
-              .ForMember(x => x.Payment, opt => opt.Ignore());
+                .ForMember(x => x.Account, opt => opt.Ignore());
    
             CreateMap<TransactionViewModel, SaveTransactionViewModel>();
             #endregion

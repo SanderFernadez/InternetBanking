@@ -1,42 +1,85 @@
 ﻿@using InternetBanking.Core.Application.ViewModels.Payments
+@using InternetBanking.Core.Domain.Enums
 @model SavePaymentViewModel
 
-<div class="modal-dialog">
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Pago Beneficiario</h5>
+        <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Pago a Beneficiario</h5>
         </div>
         <div class="modal-body">
-            <form id="paymentForm" method="post" action="@Url.Action("ProcesarPagoBeneficiario", "Payments")">
-                <div class="mb-3">
-                    <label asp-for="TransactionId" class="form-label">Beneficiario</label>
-                    <select asp-for="TransactionId" class="form-select">
-                        <option selected>Seleccione un beneficiario</option>
-                        @foreach (var beneficiario in ViewBag.Beneficiarios)
+            <!-- Formulario de Pago a Beneficiario -->
+            <form id="paymentForm" method="post" action="@Url.Action("Beneficiaries", "Payments")">
+
+                <!-- Selección de Beneficiario -->
+                <div class="mb-4">
+                    <label class="form-label font-weight-bold">Beneficiario</label>
+                    <select asp-for="DestinationAccount" class="form-select form-select-lg" required>
+                        <option value="" disabled selected>Seleccione el beneficiario</option>
+                        @foreach (var beneficiary in Model.beneficiary)
                         {
-                            <option value="@beneficiario.Value">@beneficiario.Text</option>
+                            <option value="@beneficiary.BeneficiaryAccount">
+                                @beneficiary.FirstName @beneficiary.LastName - Cuenta: @beneficiary.BeneficiaryAccount
+                            </option>
                         }
                     </select>
-                    <span asp-validation-for="TransactionId" class="text-danger"></span>
+
+
+                    <span asp-validation-for="DestinationAccount" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="AmountPaid" class="form-label">Monto</label>
-                    <input asp-for="AmountPaid" class="form-control" placeholder="Ingrese el monto" type="number" step="0.01" />
+
+                <!-- Cuenta de Origen -->
+                <div class="mb-4">
+                    <label asp-for="SourceAccount" class="form-label font-weight-bold">Cuenta de Origen</label>
+                    <select asp-for="SourceAccount" class="form-select form-select-lg" required>
+                        <option value="" disabled selected>Seleccione una cuenta de origen</option>
+                        @foreach (var account in Model.accounts)
+                        {
+
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+
+                            else if (account.AccountType == AccountType.Loan)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+
+                        }
+                    </select>
+                    <span asp-validation-for="SourceAccount" class="text-danger"></span>
+                </div>
+
+                <!-- Monto a Pagar -->
+                <div class="mb-4">
+                    <label asp-for="AmountPaid" class="form-label font-weight-bold">Monto a Pagar</label>
+                    <input asp-for="AmountPaid" class="form-control form-control-lg" placeholder="Ingrese el monto" type="number" step="0.01" min="0.01" required />
                     <span asp-validation-for="AmountPaid" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="TransactionType" class="form-label">Cuenta de Origen</label>
-                    <select asp-for="TransactionType" class="form-select">
-                        <option selected>Seleccione una cuenta</option>
-                        @foreach (var cuenta in ViewBag.CuentasOrigen)
-                        {
-                            <option value="@cuenta.Value">@cuenta.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="TransactionType" class="text-danger"></span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="confirmPayment()">Realizar Pago</button>
+
+                <!-- Botón para abrir el modal de confirmación -->
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Realizar Pago</button>
                 </div>
             </form>
         </div>
@@ -44,42 +87,78 @@
 </div>
 
 <!-- Modal de Confirmación -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div id="confirmationModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">Confirmación de Pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Confirmación de Pago</h5>
+                <button type="button" class="close" onclick="document.getElementById('confirmationModal').style.display='none'">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="confirmMessage">¿Está seguro de realizar el pago?</p>
+                <p>¿Deseas confirmar el pago al beneficiario?</p>
+                <p><strong>Beneficiario:</strong> <span id="ownerName"></span></p>
+                <p><strong>Monto:</strong> <span id="confirmationAmount"></span></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="submitPayment()">Sí, Confirmar</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('confirmationModal').style.display='none'">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPayment()">Confirmar Pago</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
-        function confirmPayment() {
-            const amount = document.getElementById('AmountPaid').value;
-            const beneficiary = document.getElementById('TransactionId');
-            const selectedBeneficiary = beneficiary.options[beneficiary.selectedIndex].text;
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.querySelector('input[name="AmountPaid"]');
+            const sourceAccountSelect = document.querySelector('select[name="SourceAccount"]');
+            const beneficiarySelect = document.querySelector('select[name="DestinationAccount"]');
+            const paymentForm = document.getElementById("paymentForm");
 
-            if (amount && selectedBeneficiary) {
-                document.getElementById('confirmMessage').textContent = `¿Está seguro de realizar el pago de $${amount} a ${selectedBeneficiary}?`;
-                var confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-                confirmModal.show();
-            } else {
-                alert("Por favor, complete todos los campos antes de continuar.");
+            function showAlert(message) {
+                alert(message);
             }
-        }
 
-        function submitPayment() {
-            document.getElementById('paymentForm').submit();
-        }
+            window.showConfirmationModal = function () {
+                const destinationAccount = beneficiarySelect.value;
+                const amountPaid = parseFloat(amountInput.value);
+                const selectedAccountId = sourceAccountSelect.value;
+
+                if (!destinationAccount) {
+                    showAlert("Por favor, seleccione un beneficiario.");
+                    return;
+                }
+                if (!selectedAccountId) {
+                    showAlert("Por favor, seleccione una cuenta de origen.");
+                    return;
+                }
+                if (!amountPaid || amountPaid <= 0) {
+                    showAlert("Por favor, ingrese un monto válido.");
+                    return;
+                }
+
+                // Llama al controlador para validar el saldo y obtener la información del beneficiario
+                fetch(`/Payments/GetAccountOwner?accountNumber=${destinationAccount}&sourceAccountId=${selectedAccountId}&amount=${amountPaid}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("ownerName").innerText = `${data.firstName} ${data.lastName}`;
+                            document.getElementById("confirmationAmount").innerText = amountPaid.toLocaleString("es-DO", { style: "currency", currency: "DOP" });
+                            document.getElementById("confirmationModal").style.display = "block";
+                        } else {
+                            showAlert(data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            };
+
+            window.confirmPayment = function () {
+                // Enviar el formulario después de la confirmación
+                paymentForm.submit();
+            };
+        });
     </script>
+
 }

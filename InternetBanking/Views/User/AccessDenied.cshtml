@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "_Layout";  // Asegúrate de tener una estructura de Layout común
+}
+
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <!-- Icono de alerta o advertencia -->
+            <div class="alert alert-danger mb-4" role="alert">
+                <h4 class="alert-heading">¡Acceso Denegado!</h4>
+                <p>Lo sentimos, no tienes permisos suficientes para acceder a esta página.</p>
+            </div>
+
+            <!-- Mensaje adicional -->
+            <p class="lead">Parece que no tienes los privilegios necesarios para ver este contenido.</p>
+
+            <!-- Botón para volver atrás -->
+            <a href="javascript:history.back()" class="btn btn-primary btn-lg">
+                Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+
+    <style>
+        /* Personalización adicional para la página de acceso denegado */
+        .alert-heading {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .lead {
+            font-size: 1.2rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>

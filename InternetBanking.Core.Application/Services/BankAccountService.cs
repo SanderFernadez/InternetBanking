@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
+using InternetBanking.Core.Application.Dtos.BankAccounts;
 using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
+
 using InternetBanking.Core.Domain.Entities;
 using InternetBanking.Core.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using System.Runtime.Intrinsics.X86;
 
 
 namespace InternetBanking.Core.Application.Services
@@ -15,22 +18,21 @@ namespace InternetBanking.Core.Application.Services
     {
         private readonly IBankAccountRepository _bankAccountRepositor;
         private readonly IAccountService _accountService;
-        private readonly IPaymentService _paymentService;
-        private readonly ITransactionService _transactionService;
+ 
         private readonly IMapper _mapper;
        
         private readonly AuthenticationResponse _userViewModel;
         private static readonly Random _random = new Random();
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BankAccountService(IBankAccountRepository bankAccountRepository, IPaymentService paymentService, IAccountService accountService , IMapper mapper, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService) : base(bankAccountRepository, mapper)
+        public BankAccountService(IBankAccountRepository bankAccountRepository, IAccountService accountService , IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(bankAccountRepository, mapper)
         {
             _bankAccountRepositor = bankAccountRepository;
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
-            _paymentService = paymentService;
+           // _paymentService = paymentService;
             _userViewModel = _httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
-            _transactionService = transactionService;
+            
         }
 
 
@@ -38,17 +40,15 @@ namespace InternetBanking.Core.Application.Services
 
         public override async Task<SaveBankAccountViewModel> Add(SaveBankAccountViewModel vm)
         {
-            //vm.UserId = _userViewModel.Id;
-           //vm.CreatedAt = DateTime.Now;
+            
            return await base.Add(vm);
         }
 
 
         public override async Task Update(SaveBankAccountViewModel vm, int Id)
         {
-           // vm.UserId = _userViewModel.Id;
-            //vm.CreatedAt = DateTime.Now;
-           // await base.Update(vm, Id);
+           
+            await base.Update(vm, Id);
         }
 
         public async Task<int> NumberOfProductsClient()
@@ -61,22 +61,101 @@ namespace InternetBanking.Core.Application.Services
             return totalProducts;
         }
 
-        public async Task<List<BankAccountViewModel>> GetDatesOfSystem()
-        {
-            var products = await GetAllViewModel();
-            var users = await _accountService.GetAllUsersAsync();
-            var payments = await _paymentService.GetAllViewModel();
-            var transactions = await _transactionService.GetAllViewModel();
 
-            foreach (var activeUsers in products)
+
+
+
+        public async Task<UserBankAccouns> GetUserAccount(int accountnumber)
+        {
+            // Llama al método para obtener todos los beneficiarios.
+            var accounts = await GetAllViewModel();
+            var users = await _accountService.GetAllUsersAsync();
+
+            var selectedAccount = accounts.FirstOrDefault(a => a.AccountNumber == accountnumber);
+
+            if (selectedAccount == null)
             {
-                activeUsers.Users = users; 
-                activeUsers.Payments = payments; 
-                activeUsers.Transactions = transactions; 
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
             }
 
-            return products;
+
+            var selectedUser =users.FirstOrDefault(u => u.Id == selectedAccount.UserId);
+
+
+            if (selectedUser == null)
+            {
+                // Devuelve una lista vacía si no se encuentra la cuenta
+                return null;
+            }
+
+            var response = new UserBankAccouns
+            { 
+                Id = selectedUser.Id,
+                FirstName = selectedUser.FirstName,
+                LastName = selectedUser.LastName,
+                InitialAmount = selectedAccount.InitialAmount,
+                CurrentBalance = selectedAccount.CurrentBalance,
+                CreditLimit = selectedAccount.CreditLimit ?? 0,
+
+            
+            
+            };
+
+            
+
+
+            return response;
         }
+
+
+
+
+
+        public async Task<SaveBankAccountViewModel> AddAmountUser(decimal amount, string UserId)
+        {
+            var accounts = await GetAllViewModel();
+            var editaccount = accounts.FirstOrDefault(a => a.UserId == UserId && a.AccountType == AccountType.SavingPrincipal);
+            
+            if (editaccount == null)
+            {
+                return null;
+            }
+
+            
+            editaccount.CurrentBalance += amount;
+
+            SaveBankAccountViewModel vm = new () {
+            
+                Id = editaccount.Id,
+                AccountType = editaccount.AccountType,
+                AccountNumber = editaccount.AccountNumber,
+                InitialAmount = editaccount.InitialAmount,
+                CurrentBalance = editaccount.CurrentBalance,
+                UserId = editaccount.UserId,
+                CreditLimit = editaccount.CreditLimit,
+                LoanAmount = editaccount.LoanAmount,
+            
+            };
+
+             await base.Update(vm, vm.Id);
+
+            return vm;
+        }
+
+
+
+        public async Task<List<BankAccountViewModel>> GetAccounts()
+        {
+            var accounts = await GetAllViewModel();
+            var accountsuser = accounts
+                 .Where(p => p.UserId == _userViewModel.Id).ToList();
+
+            return  accountsuser;
+        }
+
+
+
 
 
         public int GenerateAccountNumber()

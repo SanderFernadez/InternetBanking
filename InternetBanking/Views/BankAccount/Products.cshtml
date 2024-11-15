@@ -7,19 +7,10 @@
 }
 
 
-@if (Model.FirstOrDefault()?.UserId == null)
-{
-    <div class="alert alert-warning">UserId no está disponible en Model</div>
-}
 
 
-<!-- Muestra el mensaje de error si lo hay -->
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
+
+
 
 <!-- Formulario para agregar productos -->
 <div>
@@ -80,7 +71,7 @@
             <th>Número de Cuenta</th>
             <th>Saldo Inicial</th>
             <th>Límite de Crédito</th>
-            <th>Monto Restante del Préstamo</th>
+            <th>Deudas</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -106,7 +97,7 @@
 
                 <!-- Mostrar el LoanAmount solo si el tipo de cuenta es "Loan" -->
                 <td>
-                    @if (account.AccountType == AccountType.Loan)
+                    @if (account.AccountType == AccountType.Loan || account.AccountType == AccountType.Credit)
                     {
                         @account.LoanAmount
                     }
@@ -121,7 +112,7 @@
                     {
                         <span class="text-muted">No se puede eliminar</span>
                     }
-                    else if (account.AccountType == AccountType.Credit && account.CreditLimit != 0)
+                    else if (account.AccountType == AccountType.Credit && account.LoanAmount != 0)
                     {
                         <span class="text-muted">No se puede eliminar: deuda pendiente</span>
                     }

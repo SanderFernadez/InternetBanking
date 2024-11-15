@@ -6,6 +6,7 @@ using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.Enums;
 using Microsoft.AspNetCore.Authorization;
+using InternetBanking.Core.Application.Services;
 
 namespace WebApp.InternetBanking.Controllers
 
@@ -22,14 +23,16 @@ namespace WebApp.InternetBanking.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountService _accountService;
         private readonly IBankAccountService _bankaccountService;
+        private readonly ITransferService _trasnferService;
 
 
-        public UserController(IUserService userService, IBankAccountService bankaccountService, IHttpContextAccessor httpContextAccessor, IAccountService accountService)
+        public UserController(ITransferService trasnferService, IUserService userService, IBankAccountService bankaccountService, IHttpContextAccessor httpContextAccessor, IAccountService accountService)
         {
             _userService = userService;
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
             _bankaccountService = bankaccountService;
+            _trasnferService = trasnferService;
 
         }
 
@@ -55,22 +58,30 @@ namespace WebApp.InternetBanking.Controllers
             // Intenta autenticar al usuario.
             AuthenticationResponse userVm = await _userService.LoginAsync(loginVm);
 
-            // Verifica si la autenticación fue exitosa y no hubo errores.
+           
             if (userVm != null && !userVm.HasError)
             {
-                // Almacena la información del usuario en la sesión.
+               
                 HttpContext.Session.Set<AuthenticationResponse>("user", userVm);
+
+
+                if (userVm.Roles.Contains(Roles.SuperAdmin.ToString()))
+                {
+                    return RedirectToRoute(new { Controller = "User", action = "Dashboard" });
+                }
 
                 // Verifica si el rol del usuario es 'Client'.
                 if (userVm.Roles.Contains(Roles.Client.ToString()))
                 {
-                    return RedirectToRoute(new { Controller = "User", action = "Home" });
+                    return RedirectToRoute(new { Controller = "BankAccount", action = "Index" });
                 }
                 // Verifica si el rol del usuario es 'Admin'.
                 if (userVm.Roles.Contains(Roles.Admin.ToString()))
                 {
                     return RedirectToRoute(new { Controller = "User", action = "Dashboard" });
                 }
+
+             
 
                 // Si hay otros roles, puedes manejarlos aquí (opcional).
             }
@@ -120,8 +131,14 @@ namespace WebApp.InternetBanking.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EditUser(SaveUserViewModel vm)
         {
-            ModelState.Remove("ConfirmPassword");
             
+
+            if (vm.Password == null && vm.ConfirmPassword == null)
+            {
+                ModelState.Remove("Password");
+                ModelState.Remove("ConfirmPassword");
+            }
+
             if (!ModelState.IsValid)
             {
 
@@ -130,6 +147,14 @@ namespace WebApp.InternetBanking.Controllers
 
          
            var updateResponse = await _userService.UpdateAsync(vm);
+
+            var registerammount = await _bankaccountService.AddAmountUser(vm.InitialAmount ?? 0, vm.Id);
+
+            if (registerammount == null)
+            {
+                TempData["ErrorMessage"] = "El usuario al que esta intentado añadir el monto no cuenta con una cuenta de ahorro principal";
+                return View("EditUser", vm);
+            }
 
             return RedirectToAction("LoadUsers");
         }
@@ -166,22 +191,13 @@ namespace WebApp.InternetBanking.Controllers
         }
 
 
-        //public async Task<IActionResult> Dashboard()
-        //{
-        //    int numberproducts = await _bankaccountService.NumberOfProductsClient(); 
-        //    return View("Dashboard", numberproducts);
-        //} 
-
-
-        //[ServiceFilter(typeof(LoginAuthorize))]
+       
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Dashboard()
         {
-            var numberproducts = await _bankaccountService.GetDatesOfSystem(); 
+            var numberproducts = await _trasnferService.GetSystemReport(); 
             return View("Dashboard", numberproducts);
         }
-
-
 
 
         public async Task<IActionResult> LogOut()
@@ -189,6 +205,13 @@ namespace WebApp.InternetBanking.Controllers
             await _userService.SignOutAsync();
             HttpContext.Session.Remove("user");
             return RedirectToRoute(new { controller = "User", action = "Index" });
+        }
+
+        [Authorize]
+        public  IActionResult AccessDenied()
+        {
+           
+            return View();
         }
 
     }
