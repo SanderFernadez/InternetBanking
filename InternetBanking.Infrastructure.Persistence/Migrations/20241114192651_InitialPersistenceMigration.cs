@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InternetBanking.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPersistenceMigraton : Migration
+    public partial class InitialPersistenceMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

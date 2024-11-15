@@ -7,6 +7,20 @@
     ViewData["Title"] = isEditing ? "Editar Usuario" : "Crear Usuario";
 }
 
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+
+
 <h2>@ViewData["Title"]</h2>
 
 <form method="post"
@@ -15,6 +29,7 @@
 
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="IsVerified" />
+  
 
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -49,9 +64,10 @@
 
         <div class="col-md-6 mb-3">
             <label asp-for="PhoneNumber" class="form-label">Número de Teléfono</label>
-            <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" />
+            <input asp-for="PhoneNumber" type="text" class="form-control" placeholder="809-569-8896" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
         </div>
+
 
         <div class="col-md-12 mb-3">
             @if (isEditing)
@@ -100,7 +116,7 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        <button type="submit" class="btn btn-primary mx-2">@ViewData["Title"]</button>
+        <button type="submit" class="btn btn-primary mx-2">Guardar</button>
         <a asp-controller="User" asp-action="LoadUsers" class="btn btn-secondary mx-2">Cancelar</a>
 
         @if (isEditing)

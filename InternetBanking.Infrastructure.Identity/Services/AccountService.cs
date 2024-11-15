@@ -125,6 +125,7 @@ namespace InternetBanking.Infrastructure.Identity.Services
                 PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
                 Cedula = user.Cedula,
+                //Password = user.PasswordHash,
                 IsVerified = user.EmailConfirmed,
                 Roles = rolesList.Count > 2 ? new List<string> { Roles.SuperAdmin.ToString() } : rolesList.ToList(),
                 HasError = false,

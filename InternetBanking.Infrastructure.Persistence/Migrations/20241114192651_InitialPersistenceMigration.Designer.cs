@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InternetBanking.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PersistenceContext))]
-    [Migration("20241113042347_InitialPersistenceMigraton")]
-    partial class InitialPersistenceMigraton
+    [Migration("20241114192651_InitialPersistenceMigration")]
+    partial class InitialPersistenceMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -8,5 +8,6 @@ namespace InternetBanking.Core.Application.Interfaces.Services
     {
         Task<List<BeneficiaryViewModel>> LoadBeneficiary();
         Task<BeneficiaryViewModel> AddBeneficiaryAccount(int beneficiaryAccount);
+        Task<bool> FilterBeneficiary(int accountnumber); 
     }
 }

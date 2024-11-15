@@ -31,7 +31,7 @@ namespace WebApp.InternetBanking.Controllers
             return View(products);
         }
 
-        [Authorize(Roles = "Client")]
+        
         public async Task<IActionResult> EditProduct(string UserId)
         {
             var products = await _bankAccountService.GetClientProducts(UserId);
@@ -41,7 +41,7 @@ namespace WebApp.InternetBanking.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Client")]
+       
         public async Task<IActionResult> CreateProduct(string UserId, AccountType accountType, decimal creditLimit, decimal loanAmount)
         {
             await _bankAccountService.CreateProduct(accountType, UserId, creditLimit, loanAmount);
@@ -49,7 +49,7 @@ namespace WebApp.InternetBanking.Controllers
         } 
         
         [HttpPost]
-        [Authorize(Roles = "Client")]
+      
         public async Task<IActionResult> DeleteProduct(int Id, string UserId)
         {
             await _bankAccountService.Delete(Id);

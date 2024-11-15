@@ -28,9 +28,19 @@
                         @foreach (var account in Model.accounts)
                         {
                             if (account.AccountType == AccountType.Loan) continue;
+
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+                            else {
                             <option value="@account.Id" data-account-id="@account.Id">
                                 @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                             </option>
+                            }
                         }
                     </select>
                     <span asp-validation-for="SourceAccount" class="text-danger"></span>
@@ -44,9 +54,23 @@
                         @foreach (var account in Model.accounts)
                         {
                             if ( account.AccountType == AccountType.Loan) continue;
+
+
+                            if (account.AccountType == AccountType.Credit)
+                            {
+                                decimal creditValue = (account.CreditLimit ?? 0) - (account.LoanAmount ?? 0);
+                                <option value="@account.AccountNumber">
+                                    @account.AccountNumber - Saldo: @creditValue.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+                                </option>
+                            }
+
+                            else{
+
                             <option value="@account.AccountNumber" data-account-id="@account.Id">
                                 @account.AccountNumber - Saldo: @account.CurrentBalance.ToString("C", new System.Globalization.CultureInfo("es-DO"))
                             </option>
+
+                            }
                         }
                     </select>
                     <span asp-validation-for="DestinationAccount" class="text-danger"></span>

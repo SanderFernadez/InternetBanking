@@ -2,6 +2,7 @@
 using AutoMapper;
 using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Dtos.SystemDates;
+using InternetBanking.Core.Application.Enums;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.BankAccounts;
@@ -43,17 +44,22 @@ namespace InternetBanking.Core.Application.Services
             // Filtrar las transacciones y pagos del día actual
             var today = DateTime.Now.Date;
 
+
+
+
+
             var dailyTransactions = transactions?.Where(t => t.TransactionDate.Date == today).ToList() ?? new List<TransactionViewModel>();
             var dailyPayments = payments?.Where(p => p.PaymentDate.Date == today).ToList() ?? new List<PaymentViewModel>();
 
             // Contar los usuarios inactivos
-            var inactiveUsersCount = users?.Count(u => !u.IsVerified) ?? 0;
+            var inactiveUsersCount = users?.Count(u => !u.IsVerified && u.Roles.Any(role => role == Roles.Client.ToString())) ?? 0;
+            var activeUsersCount = users?.Count(u => u.IsVerified && u.Roles.Any(role => role == Roles.Client.ToString())) ?? 0;
 
             // Crear un informe general con el conteo de cada entidad
             var report = new BankAccountResponse
             {
                 TotalAccounts = products?.Count ?? 0,
-                TotalUsers = users?.Count ?? 0,
+                TotalUsers = activeUsersCount,
                 TotalPayments = payments?.Count ?? 0,
                 TotalTransactions = transactions?.Count ?? 0,
                 DailyTransactionsCount = dailyTransactions.Count,

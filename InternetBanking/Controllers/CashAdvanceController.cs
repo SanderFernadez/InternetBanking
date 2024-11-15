@@ -1,8 +1,9 @@
 ﻿using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Advances;
-using InternetBanking.Core.Application.ViewModels.Transactions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize(Roles = "Client")]
 public class CashAdvanceController : Controller
 {
 

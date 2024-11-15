@@ -6,6 +6,7 @@ using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.Enums;
 using Microsoft.AspNetCore.Authorization;
+using InternetBanking.Core.Application.Services;
 
 namespace WebApp.InternetBanking.Controllers
 
@@ -57,11 +58,17 @@ namespace WebApp.InternetBanking.Controllers
             // Intenta autenticar al usuario.
             AuthenticationResponse userVm = await _userService.LoginAsync(loginVm);
 
-            // Verifica si la autenticación fue exitosa y no hubo errores.
+           
             if (userVm != null && !userVm.HasError)
             {
-                // Almacena la información del usuario en la sesión.
+               
                 HttpContext.Session.Set<AuthenticationResponse>("user", userVm);
+
+
+                if (userVm.Roles.Contains(Roles.SuperAdmin.ToString()))
+                {
+                    return RedirectToRoute(new { Controller = "User", action = "Dashboard" });
+                }
 
                 // Verifica si el rol del usuario es 'Client'.
                 if (userVm.Roles.Contains(Roles.Client.ToString()))
@@ -73,6 +80,8 @@ namespace WebApp.InternetBanking.Controllers
                 {
                     return RedirectToRoute(new { Controller = "User", action = "Dashboard" });
                 }
+
+             
 
                 // Si hay otros roles, puedes manejarlos aquí (opcional).
             }
@@ -122,8 +131,14 @@ namespace WebApp.InternetBanking.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EditUser(SaveUserViewModel vm)
         {
-            ModelState.Remove("ConfirmPassword");
             
+
+            if (vm.Password == null && vm.ConfirmPassword == null)
+            {
+                ModelState.Remove("Password");
+                ModelState.Remove("ConfirmPassword");
+            }
+
             if (!ModelState.IsValid)
             {
 
@@ -132,6 +147,14 @@ namespace WebApp.InternetBanking.Controllers
 
          
            var updateResponse = await _userService.UpdateAsync(vm);
+
+            var registerammount = await _bankaccountService.AddAmountUser(vm.InitialAmount ?? 0, vm.Id);
+
+            if (registerammount == null)
+            {
+                TempData["ErrorMessage"] = "El usuario al que esta intentado añadir el monto no cuenta con una cuenta de ahorro principal";
+                return View("EditUser", vm);
+            }
 
             return RedirectToAction("LoadUsers");
         }

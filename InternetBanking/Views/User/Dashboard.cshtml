@@ -42,12 +42,12 @@
             <!-- Tarjeta de Resumen de Usuarios -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-users"></i> Resumen de Usuarios
+                    <i class="fas fa-users"></i> Resumen de Clientes Activos e Inactivos
                 </div>
                 <div class="card-body">
                     <h2>@Model.TotalUsers</h2>
-                    <p>Usuarios totales en el sistema</p>
-                    <p>Usuarios Inactivos: <span>@Model.InactiveUsersCount</span></p>
+                    <p>Clientes Activos en el sistema</p>
+                    <p>Clientes Inactivos: <span>@Model.InactiveUsersCount</span></p>
                 </div>
                 <div class="card-footer text-muted">
                     Última actualización: @DateTime.Now.ToString("g")

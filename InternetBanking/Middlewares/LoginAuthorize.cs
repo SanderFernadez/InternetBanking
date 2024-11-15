@@ -29,11 +29,20 @@ namespace WebApp.InternetBanking.Middlewares
             if (_userSession.HasUser())
             {
                 // Comprobar el rol del usuario
-                if (_userViewModel.Roles.FirstOrDefault() == Roles.Client.ToString())
+                if (_userViewModel.Roles.FirstOrDefault() == Roles.SuperAdmin.ToString())
+                {
+                    // Redirigir al usuario con rol "Client" a la vista "Index" en "BankAccount"
+                    context.Result = new RedirectToActionResult("Dashboard", "User", _userViewModel.Roles);
+                }
+
+
+                else if (_userViewModel.Roles.FirstOrDefault() == Roles.Client.ToString())
                 {
                     // Redirigir al usuario con rol "Client" a la vista "Index" en "BankAccount"
                     context.Result = new RedirectToActionResult("Index", "BankAccount", _userViewModel.Roles);
                 }
+
+
                 else
                 {
                     // Redirigir a otros usuarios a la vista "Dashboard" en "BankAccount"

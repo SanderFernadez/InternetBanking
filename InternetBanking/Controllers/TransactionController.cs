@@ -1,10 +1,12 @@
 ﻿using InternetBanking.Core.Application.Interfaces.Services;
 using InternetBanking.Core.Application.ViewModels.Transactions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace WebApp.InternetBanking.Controllers
 {
+    [Authorize(Roles = "Client")]
     public class TransactionController : Controller
     {
 

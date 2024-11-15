@@ -40,7 +40,17 @@ namespace WebApp.InternetBanking.Controllers
 
         [Authorize(Roles = "Client")]
         public async Task<IActionResult> AddBeneficiary(int beneficiaryAccount)
+
         {
+
+            var filter = await _beneficiaryService.FilterBeneficiary(beneficiaryAccount);
+            
+            if (!filter)
+            {
+                TempData["ErrorMessage"] = "Solo se pueden agregar cuentas de ahorro como beneficiarios";
+                return RedirectToAction("Index");  // Redirige a la vista de tu elección  
+            }
+
             var result = await _beneficiaryService.AddBeneficiaryAccount(beneficiaryAccount);
 
             if (result == null)

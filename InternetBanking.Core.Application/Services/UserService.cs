@@ -52,7 +52,9 @@ namespace InternetBanking.Core.Application.Services
                 AccountType = AccountType.SavingPrincipal,
                 InitialAmount = vm.InitialAmount ?? 0,
                 UserId = user.Id, // Puedes establecer el valor adecuado una vez que el usuario sea registrado
-                CurrentBalance = 0,
+                CurrentBalance = vm.InitialAmount ?? 0,
+                CreditLimit = 0,
+                LoanAmount = 0,
                 AccountNumber = _bankAccountService.GenerateAccountNumber()
             };
 
@@ -87,7 +89,9 @@ namespace InternetBanking.Core.Application.Services
         }
 
         public async  Task<AuthenticationResponse> UpdateAsync(SaveUserViewModel vm)
+
         {
+
             AuthenticationResponse UpdateRequest = _mapper.Map<AuthenticationResponse>(vm);
 
             var updateResponse = await _accountService.UpdateUser(UpdateRequest);
@@ -99,6 +103,18 @@ namespace InternetBanking.Core.Application.Services
 
             return updateResponse;
         }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

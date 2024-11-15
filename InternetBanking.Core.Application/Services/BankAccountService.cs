@@ -9,6 +9,7 @@ using InternetBanking.Core.Application.ViewModels.BankAccounts;
 using InternetBanking.Core.Domain.Entities;
 using InternetBanking.Core.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using System.Runtime.Intrinsics.X86;
 
 
 namespace InternetBanking.Core.Application.Services
@@ -111,7 +112,36 @@ namespace InternetBanking.Core.Application.Services
 
 
 
+        public async Task<SaveBankAccountViewModel> AddAmountUser(decimal amount, string UserId)
+        {
+            var accounts = await GetAllViewModel();
+            var editaccount = accounts.FirstOrDefault(a => a.UserId == UserId && a.AccountType == AccountType.SavingPrincipal);
+            
+            if (editaccount == null)
+            {
+                return null;
+            }
 
+            
+            editaccount.CurrentBalance += amount;
+
+            SaveBankAccountViewModel vm = new () {
+            
+                Id = editaccount.Id,
+                AccountType = editaccount.AccountType,
+                AccountNumber = editaccount.AccountNumber,
+                InitialAmount = editaccount.InitialAmount,
+                CurrentBalance = editaccount.CurrentBalance,
+                UserId = editaccount.UserId,
+                CreditLimit = editaccount.CreditLimit,
+                LoanAmount = editaccount.LoanAmount,
+            
+            };
+
+             await base.Update(vm, vm.Id);
+
+            return vm;
+        }
 
 
 

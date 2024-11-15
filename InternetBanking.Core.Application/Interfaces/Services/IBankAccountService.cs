@@ -19,6 +19,8 @@ namespace InternetBanking.Core.Application.Interfaces.Services
 
         Task<List<BankAccountViewModel>> GetAccounts();
 
+        Task<SaveBankAccountViewModel> AddAmountUser(decimal amount, string UserId);
+
 
 
 

@@ -3,8 +3,10 @@ using InternetBanking.Core.Application.Dtos.Account;
 using InternetBanking.Core.Application.Helpers;
 using InternetBanking.Core.Application.Interfaces.Repositories;
 using InternetBanking.Core.Application.Interfaces.Services;
+using InternetBanking.Core.Application.ViewModels.BankAccounts;
 using InternetBanking.Core.Application.ViewModels.Beneficiary;
 using InternetBanking.Core.Domain.Entities;
+using InternetBanking.Core.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
 namespace InternetBanking.Core.Application.Services
@@ -111,7 +113,13 @@ namespace InternetBanking.Core.Application.Services
         }
 
 
-
+        public async Task<bool> FilterBeneficiary(int accountnumber)
+        {
+            var accounts = await _bankAccountService.GetAllViewModel();
+            return accounts.Any(a => a.AccountNumber == accountnumber &&
+                                     (a.AccountType == AccountType.Saving ||
+                                      a.AccountType == AccountType.SavingPrincipal));
+        }
 
 
 
